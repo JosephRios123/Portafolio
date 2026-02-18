@@ -108,7 +108,7 @@ export default function Hero() {
           className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black tracking-tight mb-6 leading-none"
           style={{ animationDelay: "0.1s" }}
         >
-          <span className="block text-foreground">Daniel La Gueva</span>
+          <span className="block text-foreground">Jose Manuel</span>
           <span className="block gradient-text">Rios Restrepo</span>
         </h1>
 
