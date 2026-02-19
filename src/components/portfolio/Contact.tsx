@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import emailjs from "@emailjs/browser";
-import { Mail, MessageSquare, Linkedin, ExternalLink, Send, User, AtSign, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
+import { Mail, MessageSquare, Linkedin, ExternalLink, Send, User, AtSign, CheckCircle, AlertCircle, Loader2, Download } from "lucide-react";
+import { generateCV } from "@/lib/generateCV";
 import { z } from "zod";
 
 // ─── EmailJS config ────────────────────────────────────────────────────────────
@@ -307,6 +308,17 @@ export default function Contact() {
               </button>
             </form>
           )}
+        </div>
+
+        {/* Download CV subtle */}
+        <div className="animate-in-view mt-12 flex justify-center" style={{ transitionDelay: "0.6s" }}>
+          <button
+            onClick={() => generateCV()}
+            className="group inline-flex items-center gap-3 px-6 py-3 rounded-full glass-card-hover text-sm font-bold text-accent hover:text-primary transition-colors"
+          >
+            <Download size={16} className="group-hover:translate-y-0.5 transition-transform" />
+            Descargar mi CV en PDF
+          </button>
         </div>
 
         {/* Footer */}

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { ArrowDown, ExternalLink, Mail } from "lucide-react";
+import { ArrowDown, ExternalLink, Mail, Download } from "lucide-react";
+import { generateCV } from "@/lib/generateCV";
 
 const TYPING_TEXTS = [
   "Backend Developer",
@@ -148,6 +149,13 @@ export default function Hero() {
             Contactar
             <Mail size={18} className="group-hover:scale-110 transition-transform" />
           </a>
+          <button
+            onClick={() => generateCV()}
+            className="group flex items-center gap-2 px-8 py-4 rounded-full border-2 border-accent/50 text-accent font-bold text-lg hover:border-primary hover:text-primary hover:bg-primary/5 transition-all duration-300 active:scale-95"
+          >
+            Descargar CV
+            <Download size={18} className="group-hover:translate-y-0.5 transition-transform" />
+          </button>
         </div>
 
         {/* Scroll indicator */}
