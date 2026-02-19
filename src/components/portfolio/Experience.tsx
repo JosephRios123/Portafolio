@@ -20,9 +20,9 @@ const experiences = [
   {
     role: "Soporte y Mantenimiento de Equipos HP",
     company: "Soporte Caribe S.A.S",
-    period: "Feb 2025 – Presente",
-    current: true,
-    color: "hsl(187 92% 42%)",
+    period: "Feb 2025 – Jun 2025",
+    current: false,
+    color: "hsl(217 91% 60%)",
     achievements: [
       "Soporte técnico empresarial de alto nivel",
       "Mantenimiento físico de equipos EliteBook G9 y G10",
@@ -89,14 +89,6 @@ export default function Experience() {
                         <Calendar size={12} />
                         {period}
                       </div>
-                      {current && (
-                        <span
-                          className="px-3 py-1 rounded-full text-xs font-bold font-mono"
-                          style={{ color }}
-                        >
-                          ● Actual
-                        </span>
-                      )}
                     </div>
                   </div>
 
