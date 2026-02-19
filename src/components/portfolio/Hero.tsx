@@ -134,7 +134,7 @@ export default function Hero() {
         {/* CTA Buttons */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
           <a
-            href="#stack"
+            href="#projects"
             className="group flex items-center gap-2 px-8 py-4 rounded-full gradient-bg text-background font-bold text-lg hover:opacity-90 hover:scale-105 transition-all duration-300"
             style={{ boxShadow: "0 0 40px hsl(217 91% 60% / 0.4), 0 8px 32px hsl(187 92% 42% / 0.2)" }}
           >

@@ -1,13 +1,73 @@
-import { useEffect, useRef } from "react";
-import { GraduationCap, CheckCircle2, Calendar } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { GraduationCap, Calendar, ChevronDown } from "lucide-react";
 
-const competencies = [
-  "Metodologías ágiles (SCRUM)",
-  "Ciclo completo de desarrollo de software",
-  "Testing y aseguramiento de calidad",
-  "Programación orientada a objetos",
-  "Enfoque en experiencia de usuario",
-  "Análisis y diseño de sistemas",
+const formations = [
+  {
+    title: "Tecnólogo en Análisis y Desarrollo de Software",
+    institution: "SENA",
+    institutionFull: "Servicio Nacional de Aprendizaje",
+    location: "Medellín, Colombia",
+    period: "Abr 2022 – Jul 2024",
+    emoji: "🏫",
+    color: "hsl(217 91% 60%)",
+    status: "Graduado con éxito",
+    competencies: [
+      "Metodologías ágiles (SCRUM)",
+      "Ciclo completo de desarrollo de software",
+      "Testing y aseguramiento de calidad",
+      "Programación orientada a objetos",
+      "Enfoque en experiencia de usuario",
+      "Análisis y diseño de sistemas",
+    ],
+  },
+  {
+    title: "Introducción a la IA Generativa",
+    institution: "SENA",
+    institutionFull: "Servicio Nacional de Aprendizaje",
+    location: "Virtual",
+    period: "2024",
+    emoji: "🤖",
+    color: "hsl(187 92% 42%)",
+    status: "Completado",
+    competencies: [
+      "Comprensión de modelos generativos y su aplicación práctica",
+      "Uso estratégico de herramientas basadas en IA",
+      "Pensamiento crítico aplicado a automatización inteligente",
+      "Integración de IA como herramienta de productividad en desarrollo",
+    ],
+  },
+  {
+    title: "Programación en JAVA",
+    institution: "SENA",
+    institutionFull: "Servicio Nacional de Aprendizaje",
+    location: "Virtual",
+    period: "2023",
+    emoji: "☕",
+    color: "hsl(27 100% 55%)",
+    status: "Completado",
+    competencies: [
+      "Programación orientada a objetos avanzada",
+      "Manejo de excepciones y arquitectura limpia",
+      "Diseño modular y reutilizable",
+      "Desarrollo de lógica robusta y estructurada",
+    ],
+  },
+  {
+    title: "Operador Medios Tecnológicos",
+    institution: "SENA",
+    institutionFull: "Servicio Nacional de Aprendizaje",
+    location: "Medellín, Colombia",
+    period: "2021",
+    emoji: "🖥️",
+    color: "hsl(262 83% 65%)",
+    status: "Completado",
+    competencies: [
+      "Gestión de sistemas tecnológicos en entornos operativos",
+      "Monitoreo y control de procesos digitales",
+      "Responsabilidad en manejo de información",
+      "Atención al detalle y reacción ante incidentes técnicos",
+    ],
+  },
 ];
 
 function useScrollAnimation(ref: React.RefObject<HTMLElement>) {
@@ -24,6 +84,9 @@ function useScrollAnimation(ref: React.RefObject<HTMLElement>) {
 export default function Education() {
   const sectionRef = useRef<HTMLElement>(null);
   useScrollAnimation(sectionRef);
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
+
+  const toggle = (i: number) => setOpenIndex(openIndex === i ? null : i);
 
   return (
     <section id="education" ref={sectionRef} className="py-28 px-6 section-divider">
@@ -37,76 +100,89 @@ export default function Education() {
           Base <span className="gradient-text">Académica</span>
         </h2>
 
-        <div className="grid lg:grid-cols-5 gap-8 items-start">
-          {/* Main card */}
-          <div className="animate-in-view lg:col-span-3" style={{ transitionDelay: "0.15s" }}>
+        <div className="flex flex-col gap-5">
+          {formations.map((f, i) => (
             <div
-              className="glass-card rounded-2xl p-8 relative overflow-hidden"
-              style={{ border: "1px solid hsl(217 91% 60% / 0.3)" }}
+              key={f.title}
+              className="animate-in-view glass-card-hover rounded-2xl overflow-hidden cursor-pointer"
+              style={{ transitionDelay: `${0.15 + i * 0.08}s` }}
+              onClick={() => toggle(i)}
             >
-              {/* Glow accent */}
-              <div
-                className="absolute top-0 right-0 w-40 h-40 rounded-full opacity-10 blur-3xl"
-                style={{ background: "hsl(217 91% 60%)" }}
-              />
+              <div className="p-7 sm:p-8">
+                <div className="flex items-start gap-5">
+                  <div
+                    className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl shrink-0"
+                    style={{
+                      background: `${f.color}15`,
+                      border: `1px solid ${f.color}30`,
+                    }}
+                  >
+                    {f.emoji}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <h3 className="text-lg font-black text-foreground">{f.title}</h3>
+                        <p className="font-semibold mt-1" style={{ color: f.color }}>{f.institution}</p>
+                        <p className="text-muted-foreground text-sm">{f.location}</p>
+                      </div>
+                      <div className="flex items-center gap-3 shrink-0">
+                        <div className="hidden sm:flex items-center gap-1.5 text-muted-foreground text-sm font-mono">
+                          <Calendar size={13} className="text-accent" />
+                          {f.period}
+                        </div>
+                        <ChevronDown
+                          size={20}
+                          className="text-muted-foreground transition-transform duration-300"
+                          style={{ transform: openIndex === i ? "rotate(180deg)" : "rotate(0deg)" }}
+                        />
+                      </div>
+                    </div>
 
-              <div className="flex items-start gap-5 mb-8">
-                <div
-                  className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl shrink-0"
-                  style={{
-                    background: "hsl(217 91% 60% / 0.15)",
-                    border: "1px solid hsl(217 91% 60% / 0.3)",
-                  }}
-                >
-                  🏫
-                </div>
-                <div>
-                  <h3 className="text-2xl font-black text-foreground">SENA</h3>
-                  <p className="text-primary font-semibold mt-1">Servicio Nacional de Aprendizaje</p>
-                  <p className="text-muted-foreground text-sm mt-0.5">Medellín, Colombia</p>
+                    <div className="flex items-center gap-3 mt-3">
+                      <span
+                        className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold"
+                        style={{
+                          background: `${f.color}15`,
+                          color: f.color,
+                          border: `1px solid ${f.color}30`,
+                        }}
+                      >
+                        <GraduationCap size={13} />
+                        {f.status}
+                      </span>
+                      <span className="sm:hidden text-xs text-muted-foreground font-mono">{f.period}</span>
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              <div className="mb-6">
-                <h4 className="text-lg font-bold text-foreground mb-2">
-                  Tecnólogo en Análisis y Desarrollo de Software
-                </h4>
-                <div className="flex items-center gap-2 text-muted-foreground text-sm">
-                  <Calendar size={14} className="text-accent" />
-                  <span className="font-mono">Abr 2022 – Jul 2024</span>
-                </div>
-              </div>
-
+              {/* Accordion content */}
               <div
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold"
+                className="overflow-hidden transition-all duration-500 ease-in-out"
                 style={{
-                  background: "hsl(187 92% 42% / 0.15)",
-                  color: "hsl(187 92% 42%)",
-                  border: "1px solid hsl(187 92% 42% / 0.3)",
+                  maxHeight: openIndex === i ? `${f.competencies.length * 60}px` : "0px",
+                  opacity: openIndex === i ? 1 : 0,
                 }}
               >
-                <GraduationCap size={16} />
-                Graduado con éxito
+                <div className="px-7 sm:px-8 pb-7 sm:pb-8 pt-0">
+                  <div className="border-t border-border/50 pt-5">
+                    <p className="text-xs font-mono font-bold text-accent/80 tracking-widest uppercase mb-4">
+                      Competencias adquiridas
+                    </p>
+                    <ul className="grid sm:grid-cols-2 gap-3">
+                      {f.competencies.map((c) => (
+                        <li key={c} className="flex items-start gap-2.5 text-sm text-muted-foreground">
+                          <span className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0" style={{ background: f.color }} />
+                          {c}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-
-          {/* Competencies */}
-          <div className="animate-in-view lg:col-span-2" style={{ transitionDelay: "0.2s" }}>
-            <h3 className="text-lg font-black mb-5 text-foreground">Competencias adquiridas</h3>
-            <ul className="flex flex-col gap-3">
-              {competencies.map((c, i) => (
-                <li
-                  key={c}
-                  className="animate-in-view flex items-start gap-3 p-4 glass-card rounded-xl"
-                  style={{ transitionDelay: `${0.25 + i * 0.06}s` }}
-                >
-                  <CheckCircle2 size={18} className="text-accent mt-0.5 shrink-0" />
-                  <span className="text-sm text-muted-foreground">{c}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
+          ))}
         </div>
       </div>
     </section>

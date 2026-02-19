@@ -41,8 +41,29 @@ const softSkills = [
 ];
 
 const languages = [
-  { name: "Español", level: "Nativo", progress: 100, flag: "🇨🇴" },
-  { name: "Inglés", level: "Intermedio (en mejora)", progress: 45, flag: "🇺🇸" },
+  { name: "Español", level: "Nativo", flag: "🇨🇴" },
+  { name: "Inglés", level: "Intermedio (en mejora constante)", flag: "🇺🇸" },
+];
+
+const learnings = [
+  {
+    name: "Java",
+    emoji: "☕",
+    desc: "Profundizando en POO avanzada y ecosistema Spring",
+    color: "hsl(27 100% 55%)",
+  },
+  {
+    name: "Python",
+    emoji: "🐍",
+    desc: "Automatización, scripting y data science básico",
+    color: "hsl(45 100% 55%)",
+  },
+  {
+    name: "Inglés",
+    emoji: "🌍",
+    desc: "Lectura técnica fluida, conversación en desarrollo",
+    color: "hsl(217 91% 60%)",
+  },
 ];
 
 function useScrollAnimation(ref: React.RefObject<HTMLElement>) {
@@ -95,39 +116,57 @@ export default function Skills() {
           ))}
         </div>
 
-        {/* Languages */}
+        {/* Learning - elegant cards without progress bars */}
         <div className="animate-in-view flex items-center gap-3 mb-4" style={{ transitionDelay: "0.3s" }}>
+          <span className="w-8 h-px gradient-bg" />
+          <span className="text-accent text-sm font-mono font-bold tracking-widest uppercase">Aprendizaje Activo</span>
+        </div>
+
+        <h2 className="animate-in-view text-4xl sm:text-5xl font-black mb-12" style={{ transitionDelay: "0.35s" }}>
+          Siempre en <span className="gradient-text">modo aprendizaje</span>
+        </h2>
+
+        <div className="grid sm:grid-cols-3 gap-5 mb-24">
+          {learnings.map(({ name, emoji, desc, color }, i) => (
+            <div
+              key={name}
+              className="animate-in-view glass-card-hover rounded-2xl p-8 group"
+              style={{ transitionDelay: `${0.4 + i * 0.08}s` }}
+            >
+              <div className="text-4xl mb-4">{emoji}</div>
+              <h3 className="text-xl font-black text-foreground mb-2">{name}</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">{desc}</p>
+              <div
+                className="mt-5 h-0.5 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-500 w-0 group-hover:w-full"
+                style={{ background: `linear-gradient(90deg, ${color}, transparent)` }}
+              />
+            </div>
+          ))}
+        </div>
+
+        {/* Languages */}
+        <div className="animate-in-view flex items-center gap-3 mb-4" style={{ transitionDelay: "0.5s" }}>
           <span className="w-8 h-px gradient-bg" />
           <span className="text-accent text-sm font-mono font-bold tracking-widest uppercase">Idiomas</span>
         </div>
 
-        <h2 className="animate-in-view text-4xl sm:text-5xl font-black mb-12" style={{ transitionDelay: "0.35s" }}>
+        <h2 className="animate-in-view text-4xl sm:text-5xl font-black mb-12" style={{ transitionDelay: "0.55s" }}>
           <span className="gradient-text">Lenguajes</span> que domino
         </h2>
 
         <div className="grid sm:grid-cols-2 gap-6 max-w-2xl">
-          {languages.map(({ name, level, progress, flag }, i) => (
+          {languages.map(({ name, level, flag }, i) => (
             <div
               key={name}
-              className="animate-in-view glass-card rounded-2xl p-7"
-              style={{ transitionDelay: `${0.4 + i * 0.1}s`, border: "1px solid hsl(217 91% 60% / 0.15)" }}
+              className="animate-in-view glass-card-hover rounded-2xl p-7"
+              style={{ transitionDelay: `${0.6 + i * 0.1}s` }}
             >
-              <div className="flex items-center gap-3 mb-5">
-                <span className="text-3xl">{flag}</span>
+              <div className="flex items-center gap-4">
+                <span className="text-4xl">{flag}</span>
                 <div>
-                  <div className="font-black text-foreground">{name}</div>
-                  <div className="text-xs text-muted-foreground">{level}</div>
+                  <div className="font-black text-foreground text-lg">{name}</div>
+                  <div className="text-sm text-muted-foreground">{level}</div>
                 </div>
-                <div className="ml-auto text-2xl font-black gradient-text">{progress}%</div>
-              </div>
-              <div className="h-2 bg-muted rounded-full overflow-hidden">
-                <div
-                  className="h-full rounded-full"
-                  style={{
-                    width: `${progress}%`,
-                    background: "linear-gradient(90deg, hsl(217 91% 60%), hsl(187 92% 42%))",
-                  }}
-                />
               </div>
             </div>
           ))}

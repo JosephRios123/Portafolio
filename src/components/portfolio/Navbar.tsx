@@ -2,9 +2,9 @@ import { useState, useEffect } from "react";
 import { Menu, X, Code2 } from "lucide-react";
 
 const navLinks = [
-  { label: "Sobre Mí", href: "#about" },
-  { label: "Stack", href: "#stack" },
+  { label: "Proyectos", href: "#projects" },
   { label: "Experiencia", href: "#experience" },
+  { label: "Sobre Mí", href: "#about" },
   { label: "Formación", href: "#education" },
   { label: "Habilidades", href: "#skills" },
   { label: "Contacto", href: "#contact" },
@@ -29,7 +29,6 @@ export default function Navbar() {
       }`}
     >
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-        {/* Logo */}
         <a href="#hero" className="flex items-center gap-2 group">
           <div className="w-8 h-8 rounded-lg gradient-bg flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
             <Code2 size={16} className="text-background" />
@@ -37,7 +36,6 @@ export default function Navbar() {
           <span className="font-bold text-sm gradient-text hidden sm:block">JMRR</span>
         </a>
 
-        {/* Desktop links */}
         <ul className="hidden md:flex items-center gap-1">
           {navLinks.map((link) => (
             <li key={link.href}>
@@ -52,7 +50,6 @@ export default function Navbar() {
           ))}
         </ul>
 
-        {/* CTA */}
         <a
           href="#contact"
           className="hidden md:inline-flex items-center gap-2 px-5 py-2 rounded-full gradient-bg text-background text-sm font-semibold hover:opacity-90 hover:scale-105 transition-all duration-300 shadow-lg"
@@ -61,7 +58,6 @@ export default function Navbar() {
           Contrátame
         </a>
 
-        {/* Mobile menu toggle */}
         <button
           className="md:hidden text-muted-foreground hover:text-foreground transition-colors"
           onClick={() => setMenuOpen(!menuOpen)}
@@ -70,7 +66,6 @@ export default function Navbar() {
         </button>
       </div>
 
-      {/* Mobile menu */}
       {menuOpen && (
         <div className="md:hidden backdrop-blur-xl bg-background/95 border-t border-primary/10 px-6 py-4">
           <ul className="flex flex-col gap-2">
