@@ -1,11 +1,11 @@
 import { useEffect, useRef } from "react";
-import { Briefcase, Code2, Building2, Award } from "lucide-react";
+import { Briefcase, Code2, Building2, Infinity } from "lucide-react";
 
 const metrics = [
   { icon: Briefcase, label: "Años de experiencia", value: "2+" },
   { icon: Code2, label: "Tecnologías dominadas", value: "9+" },
   { icon: Building2, label: "Empresas", value: "2" },
-  { icon: Award, label: "Metodología", value: "SCRUM" },
+  { icon: Infinity, label: "Afición", value: "☕" },
 ];
 
 const technologies = [
@@ -123,7 +123,7 @@ export default function About() {
                     <div
                       className="w-11 h-11 rounded-xl flex items-center justify-center text-lg transition-all duration-300 group-hover:scale-125"
                       style={{
-                        background: `${tech.color}15`,
+                        background: `${tech.color}38`,
                         border: `1px solid ${tech.color}30`,
                         boxShadow: `0 0 0px ${tech.color}00`,
                       }}
