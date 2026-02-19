@@ -10,7 +10,7 @@ const metrics = [
 
 const technologies = [
   { name: "PHP", sub: "Laravel", emoji: "🐘", color: "hsl(271 60% 60%)" },
-  { name: "C#", sub: ".NET", emoji: "🔷🖥️", color: "hsl(262 83% 65%)" },
+  { name: "C#", sub: ".NET", emoji: "🖥️", color: "hsl(262 83% 65%)" },
   { name: "Python", sub: "Scripting", emoji: "🐍", color: "hsl(45 100% 55%)" },
   { name: "Java", sub: "OOP", emoji: "☕", color: "hsl(27 100% 55%)" },
   { name: "MySQL", sub: "DB", emoji: "🗄️", color: "hsl(197 71% 53%)" },
@@ -18,7 +18,7 @@ const technologies = [
   { name: "CSS", sub: "Styling", emoji: "🎨", color: "hsl(217 91% 60%)" },
   { name: "JS", sub: "ES6+", emoji: "⚡", color: "hsl(48 100% 55%)" },
   { name: "React", sub: "Frontend", emoji: "⚛️", color: "hsl(187 92% 55%)" },
-  { name: "ASP.NET", sub: "Backend", emoji: "🔷⚙️", color: "hsl(262 83% 65%)" },
+  { name: "ASP.NET", sub: "Backend", emoji: "⚙️", color: "hsl(262 83% 65%)" },
 ];
 
 function useScrollAnimation(ref: React.RefObject<HTMLElement>) {
