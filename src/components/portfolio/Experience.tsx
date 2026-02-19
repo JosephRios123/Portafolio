@@ -61,13 +61,11 @@ export default function Experience() {
         </h2>
 
         <div className="relative">
-          {/* Timeline line */}
           <div className="absolute left-6 top-0 bottom-0 w-px bg-gradient-to-b from-primary via-accent to-transparent hidden sm:block" />
 
           <div className="flex flex-col gap-12">
             {experiences.map(({ role, company, period, current, color, achievements }, i) => (
               <div key={company} className="animate-in-view sm:pl-20 relative" style={{ transitionDelay: `${0.1 * i}s` }}>
-                {/* Timeline dot */}
                 <div
                   className="absolute left-3.5 top-6 w-5 h-5 rounded-full border-2 border-background hidden sm:flex items-center justify-center"
                   style={{ background: color, boxShadow: `0 0 16px ${color}` }}
@@ -78,7 +76,6 @@ export default function Experience() {
                 </div>
 
                 <div className="glass-card-hover rounded-2xl p-8">
-                  {/* Header */}
                   <div className="flex flex-wrap items-start justify-between gap-4 mb-6">
                     <div>
                       <h3 className="text-xl font-black text-foreground mb-2">{role}</h3>
@@ -94,8 +91,8 @@ export default function Experience() {
                       </div>
                       {current && (
                         <span
-                          className="px-3 py-1 rounded-full text-xs font-bold"
-                          style={{ background: `${color}20`, color, border: `1px solid ${color}40` }}
+                          className="px-3 py-1 rounded-full text-xs font-bold font-mono"
+                          style={{ color }}
                         >
                           ● Actual
                         </span>
@@ -103,7 +100,6 @@ export default function Experience() {
                     </div>
                   </div>
 
-                  {/* Achievements */}
                   <ul className="grid sm:grid-cols-2 gap-3">
                     {achievements.map((a) => (
                       <li key={a} className="flex items-start gap-2.5 text-sm text-muted-foreground">
