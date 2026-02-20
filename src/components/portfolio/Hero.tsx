@@ -5,7 +5,7 @@ import { generateCV } from "@/lib/generateCV";
 const TYPING_TEXTS = [
   "Desarrollador Backend",
   "Arquitecto de soluciones escalables",
-  "Manteniendo siempre buenas prácticas ",
+  "Manteniendo siempre buenas prácticas",
   "Preparado para cualquier adversidad",
 ];
 
