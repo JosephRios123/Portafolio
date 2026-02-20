@@ -163,9 +163,9 @@ export function generateCV() {
 
   const formations = [
     { title: "Tecnólogo en Análisis y Desarrollo de Software", inst: "SENA", period: "Abr 2022 – Jul 2024" },
-    { title: "Introducción a la IA Generativa", inst: "SENA", period: "2024" },
-    { title: "Programación en JAVA", inst: "SENA", period: "2023" },
-    { title: "Operador Medios Tecnológicos", inst: "SENA", period: "2021" },
+    { title: "Introducción a la IA Generativa", inst: "Google Cloud - Coursera", period: "2025" },
+    { title: "Programación en JAVA", inst: "Politécnico de Antioquia", period: "2025" },
+    { title: "Operador Medios Tecnológicos", inst: "AVIPS LTDA", period: "2025" },
   ];
 
   formations.forEach((f) => {
