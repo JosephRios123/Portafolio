@@ -3,10 +3,10 @@ import { ArrowDown, ExternalLink, Mail, Download } from "lucide-react";
 import { generateCV } from "@/lib/generateCV";
 
 const TYPING_TEXTS = [
-  "Backend Developer",
-  "Arquitecto de Soluciones Escalables",
-  "PHP & Laravel Expert",
-  "Clean Code Advocate",
+  "Desarrollador Backend",
+  "Arquitecto de soluciones escalables",
+  "Manteniendo siempre buenas prácticas ",
+  "Preparado para cualquier adversidad",
 ];
 
 function useTypewriter(texts: string[], speed = 80, pause = 2000) {
