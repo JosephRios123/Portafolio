@@ -6,7 +6,7 @@ import { z } from "zod";
 
 // ─── EmailJS config ────────────────────────────────────────────────────────────
 // Replace these with your real EmailJS credentials
-const EMAILJS_SERVICE_ID  = "service_f5e2mqf";   // e.g. "service_abc123"
+const EMAILJS_SERVICE_ID  = "service_63fvkqq";   // e.g. "service_abc123"
 const EMAILJS_TEMPLATE_ID = "template_3wfaklf";  // e.g. "template_xyz789"
 const EMAILJS_PUBLIC_KEY  = "THBM1IILucHMWfU4Y";   // e.g. "AbCdEfGhIjKlMnOp"
 // ──────────────────────────────────────────────────────────────────────────────
