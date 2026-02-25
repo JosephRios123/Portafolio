@@ -33,7 +33,7 @@ export function generateCV() {
   y += 9;
   doc.setFontSize(11);
   doc.setTextColor(...cyan);
-  doc.text("Desarrollador Backend  |  Manteniendo siempre buenas prácticas  |  Arquitecto de soluciones escalables", margin, y);
+  doc.text("Desarrollador Backend | Manteniendo buenas prácticas | Arquitecto de soluciones escalables", margin, y);
 
   // Contact line
   y += 8;
