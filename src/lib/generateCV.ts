@@ -33,14 +33,14 @@ export function generateCV() {
   y += 9;
   doc.setFontSize(11);
   doc.setTextColor(...cyan);
-  doc.text("Backend Developer  |  PHP & Laravel Expert  |  Clean Code Advocate", margin, y);
+  doc.text("Desarrollador Backend  |  Manteniendo siempre buenas prácticas  |  Arquitecto de soluciones escalables", margin, y);
 
   // Contact line
   y += 8;
   doc.setFontSize(8.5);
   doc.setTextColor(...muted);
   doc.text(
-    "cresposfelices@gmail.com  •  +57 318 753 7304  •  linkedin.com/in/jose-manuel-rios-restrepo-69ab691b4",
+    "https://cvjosemanuelriosrestrepo.lovable.app  •  +57 318 753 7304  •  linkedin.com/in/jose-manuel-rios-restrepo-69ab691b4",
     margin,
     y
   );
