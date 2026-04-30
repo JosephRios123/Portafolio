@@ -90,7 +90,7 @@ export default function ProjectsAdmin() {
       ) : (
         <div className="grid gap-4">
           {items.map((p) => (
-            <div key={p.id} className="glass-card rounded-2xl p-5 flex items-start gap-4">
+            <div key={p.id} className="glass-card rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row items-start gap-4">
               {p.image_url && <img src={p.image_url} alt={p.name} className="w-20 h-20 rounded-xl object-cover" />}
               <div className="flex-1 min-w-0">
                 <h3 className="font-black text-foreground">{p.name}</h3>

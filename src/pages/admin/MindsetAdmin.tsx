@@ -60,7 +60,7 @@ export default function MindsetAdmin() {
         : (
           <div className="grid gap-4">
             {items.map((p) => (
-              <div key={p.id} className="glass-card rounded-2xl p-5 flex items-start gap-4">
+              <div key={p.id} className="glass-card rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row items-start gap-4">
                 <div className="flex-1 min-w-0">
                   <span className="inline-block px-2 py-0.5 text-xs rounded-full mb-2 font-bold" style={{
                     background: `${catColors[p.category]}15`, color: catColors[p.category], border: `1px solid ${catColors[p.category]}30`
