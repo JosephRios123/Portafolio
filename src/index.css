@@ -125,6 +125,10 @@
   .tech-card-glow:hover {
     box-shadow: 0 0 30px hsl(var(--cyan-glow) / 0.25), 0 0 60px hsl(var(--electric-blue) / 0.1);
   }
+
+  .input-base {
+    @apply w-full px-4 py-2.5 rounded-xl bg-background/50 border border-border text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/60 transition-all;
+  }
 }
 
 @keyframes float {
@@ -162,4 +166,12 @@
   10% { opacity: 1; }
   90% { opacity: 1; }
   100% { transform: translateY(-100px) translateX(30px); opacity: 0; }
+}
+
+@keyframes draw-circle {
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes draw-check {
+  to { stroke-dashoffset: 0; }
 }

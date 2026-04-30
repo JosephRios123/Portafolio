@@ -1,93 +1,79 @@
+## Plan de implementación — 4 módulos
 
-## 🚀 Portafolio Profesional — Jose Manuel Rios Restrepo
+### Módulo 1 — Hero: párrafo de impacto
+Reemplazar el párrafo actual en `src/components/portfolio/Hero.tsx` (líneas 129-133) por dos líneas con punch técnico backend, p. ej.:
 
-### Concepto Visual
-**Dark mode** con paleta **azul eléctrico (#3B82F6) + cyan (#06B6D4)** sobre fondos oscuros profundos (#0A0F1E). Efectos de glassmorphism, gradientes dinámicos y microinteracciones. Tipografía: titulares en bold extrafuerte, contenido limpio y legible. Estilo: tech startup premium.
+> "Diseño APIs que escalan, bases de datos que vuelan y arquitecturas que no se rompen bajo presión.
+> El backend invisible que sostiene cada experiencia que importa."
 
----
-
-### 1️⃣ Hero Section — Impacto en 3 segundos
-- Fondo oscuro con **gradiente animado** y partículas/efecto de código en movimiento (decorativo)
-- Nombre grande y contundente: **Jose Manuel Rios Restrepo**
-- Título con **efecto de escritura animada** (typewriter): "Backend Developer | Arquitecto de Soluciones Escalables"
-- Frase de autoridad destacada en cyan
-- Dos botones CTA: **"Ver proyectos"** (primario, degradado azul-cyan) y **"Contactar"** (secundario, borde brillante)
-- Scroll indicator animado hacia abajo
+Mantengo el highlight de palabras clave (`APIs`, `bases de datos`, `arquitecturas`) en `text-primary` / `text-accent` para conservar la estética.
 
 ---
 
-### 2️⃣ Sobre Mí — Autoridad + Confianza
-- Layout de **dos columnas**: avatar/ilustración a la izquierda, texto a la derecha
-- Párrafo de presentación profesional con highlight en palabras clave
-- Tarjetas pequeñas mostrando **métricas rápidas**: Años de experiencia, tecnologías, empresas
-- Diseño con glassmorphism card para el texto
+### Módulo 2 — CV descargable rediseñado
+Reescribir `src/lib/generateCV.ts` desde cero con identidad editorial:
+
+- **Paleta**: fondo blanco hueso `#FAFAF9`, texto `#0D0D0D`, acento único **teal oscuro `#0F766E`** (transmite seniority sin gritar).
+- **Tipografía**: `helvetica` bold para headings (proxy de Inter en jsPDF) + `times` para cuerpo (serif con clase). Tamaños jerárquicos (nombre 32pt, rol 12pt acento, sección 9pt uppercase tracking, cuerpo 9.5pt serif).
+- **Layout 1 columna ATS-safe**: sin tablas ni columnas en zonas críticas. Solo líneas hairline (0.2mm) como separadores y labels uppercase con letter-spacing manual (espacios entre letras).
+- **Header**: nombre dominante a la izquierda, rol con acento debajo, links como texto limpio (github / linkedin / portfolio) sin íconos.
+- **Stats row**: 3 números destacados (ej. `2+ años exp` · `4+ tecnologías core` · `3+ certificaciones`) en grande con micro-label uppercase abajo.
+- **Skills agrupados por categoría** ("Backend Core", "Bases de Datos", "DevOps & Cloud", "Metodologías") como chips de borde fino sin relleno (rectángulos con `setDrawColor` y padding).
+- **Bullets de experiencia**: cada uno empieza con verbo en pasado en negrita (Arquitecté, Desarrollé, Optimicé, Automaticé, Escalé) + dato cuantificable cuando exista.
+- **Cierre**: frase firma estilo manifesto: *"Construyo backends que sobreviven al éxito."*
+- ATS-safe: solo texto vectorial, keywords incrustadas (Laravel, .NET, MySQL, REST API, SCRUM, testing).
 
 ---
 
-### 3️⃣ Stack Tecnológico — Arsenal Visual
-- Título de sección: **"Mi Arsenal Tecnológico"**
-- Grid de tarjetas con **íconos tecnológicos** (PHP/Laravel, C#/.NET, Python, Java, MySQL, HTML, CSS, JS, React)
-- Cada tarjeta tiene efecto **hover** con glow de color cyan/azul
-- Animación de entrada escalonada al hacer scroll
+### Módulo 3 — Panel Admin con CRUDs (requiere Lovable Cloud)
+Activar Lovable Cloud para auth + DB persistente.
+
+**Backend (Supabase)**:
+- Tablas: `projects`, `experiences`, `experience_bullets` (1:N), `mindset_principles`, `formations`. Cada una con RLS: lectura pública (anon SELECT), escritura solo admin.
+- Tabla `user_roles` + enum `app_role` + función `has_role(uuid, app_role)` SECURITY DEFINER (patrón estándar anti-recursión).
+- Bucket público `project-previews` para imágenes opcionales de proyectos.
+- Seed de la cuenta admin `cresposfelices@gmail.com` con rol `admin`. La contraseña `ppmm0204*` se establece al crear el usuario en auth.
+
+**Frontend**:
+- Ruta `/admin/login` con formulario email/contraseña (default Lovable Cloud auth, sin OAuth).
+- Ruta protegida `/admin` con layout: sidebar (`Sidebar` shadcn) con 4 entradas (Proyectos, Experiencia, Mentalidad, Formación) + topbar con avatar/logout.
+- Cada CRUD comparte un patrón: tabla con shadcn `Table` (acciones editar/eliminar), botón "Nuevo", `Sheet` lateral con formulario `react-hook-form` + zod, toast (sonner) al guardar/borrar.
+- **CRUD Proyectos**: nombre, tags (chips input), descripción ≤200, link, upload imagen a bucket.
+- **CRUD Experiencia**: cargo, empresa, fecha inicio/fin (toggle "Actualidad"), bullets dinámicos (sub-tabla con add/remove inline).
+- **CRUD Mentalidad**: frase, descripción larga, categoría (select Técnica/Humana/Estratégica).
+- **CRUD Formación**: nombre, institución, ciudad, estado (select), fecha.
+
+**Vistas públicas**: refactorizar `Projects.tsx`, `Experience.tsx`, `Mindset.tsx`, `Education.tsx` para leer de Supabase con fallback al diseño "Próximamente" si no hay datos. Mantener estética actual + animaciones (timeline para experiencia, bloques asimétricos glassmorphism para mentalidad, grid con íconos de estado para formación, cards hover con badges para proyectos).
 
 ---
 
-### 4️⃣ Experiencia Profesional — Timeline Estratégico
-- **Timeline vertical** con línea central animada
-- Tarjetas glassmorphism para cada rol con badges de fechas
-- Bullets de logros con íconos
-- Empresa y período destacados visualmente
-- Incluye: Visual Contact S.A.S y Soporte Caribe S.A.S
+### Módulo 4 — Email premium con Reply-To
+Cambios en `src/components/portfolio/Contact.tsx`:
+
+1. Cambiar `to_email` enviado a EmailJS por `josephcantantecontact@gmail.com`.
+2. Añadir variables al payload: `reply_to: result.data.email`, `subject: \`Nuevo mensaje desde el portafolio — ${result.data.name}\``.
+3. Botón submit con 3 estados visuales: idle → loading (spinner + "Enviando...") → success (checkmark animado SVG con stroke-dashoffset + texto "¡Mensaje enviado!"), error con banner rojo sin destruir el form.
+
+**Plantilla HTML para EmailJS (te la entrego al final)**:
+- Header dark `#0D0D0D`, título "Portafolio · Jose Manuel" con acento `#06B6D4`.
+- Body claro: nombre del remitente bold, email como `<a href="mailto:{{from_email}}">`, mensaje en blockquote con `border-left: 4px solid #06B6D4` y fondo `#F8FAFC`.
+- Footer con la nota de "Responde directamente para contactar al remitente".
+- Tablas inline con `style=""` para compatibilidad Gmail desktop/mobile.
+
+**Configuración manual que tú harás en EmailJS dashboard**:
+- En la plantilla `template_3wfaklf`, setear el campo **Reply-To** = `{{reply_to}}`.
+- Pegar el HTML que te entregaré en el body de la plantilla.
+- Dejar **To Email** = `josephcantantecontact@gmail.com` (o usar `{{to_email}}`).
+- Subject = `{{subject}}`.
 
 ---
 
-### 5️⃣ Experiencias que Formaron Mi Mentalidad
-- Sección diferenciadora con diseño distinto al timeline técnico
-- Cards horizontales con íconos que representen cada experiencia (eventos, bodega)
-- Título: **"Más que código: la mentalidad que me forjó"**
-- Muestra resiliencia, adaptabilidad y versatilidad humana
+### Detalles técnicos
 
----
+- **Orden de ejecución**: Módulo 1 → Módulo 4 (rápidos, sin backend) → activar Lovable Cloud → Módulo 2 (CV) → Módulo 3 (admin completo, el más extenso).
+- Dependencias nuevas: ninguna en Módulo 1, 2, 4. En Módulo 3: `react-hook-form` y `@hookform/resolvers` ya están instalados con shadcn.
+- Las vistas públicas mantendrán el `Projects.tsx` "Próximamente" como fallback cuando la tabla esté vacía.
+- Auth: contraseña fuerte recomendada; `ppmm0204*` cumple mínimo. La cuenta admin queda creada y con rol asignado vía seed automático.
+- RLS estricto: tablas públicas readable sin auth, mutaciones solo si `has_role(auth.uid(), 'admin')`.
+- Validación con Zod en todos los formularios admin + límites de longitud.
 
-### 6️⃣ Formación Académica
-- Card destacada del **SENA** con logo/ícono académico
-- Lista de competencias adquiridas con checkmarks estilizados en cyan
-- Período destacado visualmente
-
----
-
-### 7️⃣ Aprendizaje Continuo
-- Sección dinámica: **"Siempre en modo aprendizaje"**
-- Badges o pills animados: Java, Python, Inglés
-- Frase motivacional que refuerce la mentalidad de crecimiento
-
----
-
-### 8️⃣ Habilidades Blandas
-- Grid de **tarjetas de habilidades** con íconos representativos
-- Diseño visual atractivo con glow effects
-- 6 habilidades: Resolución de problemas, Análisis, Trabajo en equipo, Comunicación, Aprendizaje, Testing
-
----
-
-### 9️⃣ Idiomas
-- Sección compacta integrada cerca de habilidades
-- Barras de progreso estilizadas: Español (nativo), Inglés (en mejora)
-
----
-
-### 🔟 Contacto — CTA Final Poderoso
-- Sección con **gradiente destacado** para llamar la atención
-- Título: **"¿Listo para construir algo grande juntos?"**
-- Tarjetas de contacto con íconos: Email, Teléfono, LinkedIn
-- Efecto hover brillante en cada tarjeta
-- Footer minimalista con redes sociales
-
----
-
-### ✨ Características Técnicas
-- **Navegación sticky** con navbar translúcida (blur) y links con animación underline
-- **Scroll suave** entre secciones
-- Animaciones de entrada al hacer scroll (fade-in, slide-up)
-- Totalmente **responsive** (móvil, tablet, desktop)
-- **Performance optimizada** — carga rápida y fluida

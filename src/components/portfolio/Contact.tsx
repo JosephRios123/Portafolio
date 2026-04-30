@@ -1,15 +1,15 @@
 import { useEffect, useRef, useState } from "react";
 import emailjs from "@emailjs/browser";
-import { Mail, MessageSquare, Linkedin, ExternalLink, Send, User, AtSign, CheckCircle, AlertCircle, Loader2, Download } from "lucide-react";
+import { Mail, MessageSquare, Linkedin, ExternalLink, Send, User, AtSign, AlertCircle, Loader2, Download } from "lucide-react";
 import { generateCV } from "@/lib/generateCV";
 import { z } from "zod";
 
-// ─── EmailJS config ────────────────────────────────────────────────────────────
-// Replace these with your real EmailJS credentials
-const EMAILJS_SERVICE_ID  = "service_63fvkqq";   // e.g. "service_abc123"
-const EMAILJS_TEMPLATE_ID = "template_3wfaklf";  // e.g. "template_xyz789"
-const EMAILJS_PUBLIC_KEY  = "THBM1IILucHMWfU4Y";   // e.g. "AbCdEfGhIjKlMnOp"
-// ──────────────────────────────────────────────────────────────────────────────
+// ─── EmailJS config ───────────────────────────────────────────────────
+const EMAILJS_SERVICE_ID  = "service_63fvkqq";
+const EMAILJS_TEMPLATE_ID = "template_3wfaklf";
+const EMAILJS_PUBLIC_KEY  = "THBM1IILucHMWfU4Y";
+const RECIPIENT_EMAIL     = "josephcantantecontact@gmail.com";
+// ──────────────────────────────────────────────────────────────────────
 
 const contactSchema = z.object({
   name: z.string().trim().min(2, "El nombre debe tener al menos 2 caracteres").max(100),
@@ -57,6 +57,34 @@ function useScrollAnimation(ref: React.RefObject<HTMLElement>) {
   }, [ref]);
 }
 
+// Animated success checkmark (SVG with stroke-dashoffset animation)
+function SuccessCheck() {
+  return (
+    <svg width="80" height="80" viewBox="0 0 80 80" className="mb-4">
+      <circle
+        cx="40" cy="40" r="36"
+        fill="none"
+        stroke="hsl(187 92% 42%)"
+        strokeWidth="3"
+        strokeDasharray="226"
+        strokeDashoffset="226"
+        style={{ animation: "draw-circle 0.6s ease-out forwards" }}
+      />
+      <path
+        d="M24 42 L36 54 L58 30"
+        fill="none"
+        stroke="hsl(187 92% 42%)"
+        strokeWidth="4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeDasharray="60"
+        strokeDashoffset="60"
+        style={{ animation: "draw-check 0.4s ease-out 0.55s forwards" }}
+      />
+    </svg>
+  );
+}
+
 export default function Contact() {
   const sectionRef = useRef<HTMLElement>(null);
   useScrollAnimation(sectionRef);
@@ -92,10 +120,13 @@ export default function Contact() {
         EMAILJS_SERVICE_ID,
         EMAILJS_TEMPLATE_ID,
         {
+          // Variables que tu plantilla EmailJS debe usar:
+          to_email: RECIPIENT_EMAIL,                                          // destinatario
+          reply_to: result.data.email,                                        // ⭐ Reply-To = visitante
           from_name: result.data.name,
           from_email: result.data.email,
           message: result.data.message,
-          to_email: "cresposfelices@gmail.com",
+          subject: `Nuevo mensaje desde el portafolio — ${result.data.name}`, // asunto dinámico
         },
         EMAILJS_PUBLIC_KEY
       );
@@ -108,7 +139,6 @@ export default function Contact() {
 
   return (
     <section id="contact" ref={sectionRef} className="py-28 px-6 section-divider relative overflow-hidden">
-      {/* Background gradient */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
@@ -118,7 +148,6 @@ export default function Contact() {
       />
 
       <div className="relative z-10 max-w-5xl mx-auto">
-        {/* Header */}
         <div className="animate-in-view flex items-center gap-3 mb-4">
           <span className="w-8 h-px gradient-bg" />
           <span className="text-accent text-sm font-mono font-bold tracking-widest uppercase">Contacto</span>
@@ -139,7 +168,6 @@ export default function Contact() {
           Estoy disponible para roles de backend developer, consultoría técnica o proyectos desafiantes. Hablemos.
         </p>
 
-        {/* Contact cards */}
         <div className="grid sm:grid-cols-3 gap-5 mb-16">
           {contacts.map(({ icon: Icon, label, value, href, color, external }, i) => (
             <a
@@ -152,10 +180,7 @@ export default function Contact() {
             >
               <div
                 className="w-14 h-14 rounded-xl flex items-center justify-center mb-5 transition-all duration-300 group-hover:scale-110"
-                style={{
-                  background: `${color}15`,
-                  border: `1px solid ${color}30`,
-                }}
+                style={{ background: `${color}15`, border: `1px solid ${color}30` }}
               >
                 <Icon size={24} style={{ color }} />
               </div>
@@ -172,31 +197,28 @@ export default function Contact() {
           ))}
         </div>
 
-        {/* Contact Form */}
-        <div
-          className="animate-in-view glass-card rounded-3xl p-8 sm:p-12"
-          style={{ transitionDelay: "0.5s" }}
-        >
+        <div className="animate-in-view glass-card rounded-3xl p-8 sm:p-12" style={{ transitionDelay: "0.5s" }}>
           <h3 className="text-2xl font-black mb-2 text-foreground">Envíame un mensaje</h3>
           <p className="text-muted-foreground text-sm mb-8">
             Completa el formulario y te respondo directamente a tu correo.
           </p>
 
           {status === "success" ? (
-            <div className="flex flex-col items-center gap-4 py-12 text-center">
-              <CheckCircle size={52} className="text-green-400" />
-              <p className="text-xl font-bold text-foreground">¡Mensaje enviado con éxito!</p>
-              <p className="text-muted-foreground text-sm">Gracias por escribirme, te responderé pronto.</p>
+            <div className="flex flex-col items-center gap-2 py-12 text-center">
+              <SuccessCheck />
+              <p className="text-2xl font-black text-foreground">¡Mensaje enviado!</p>
+              <p className="text-muted-foreground text-sm max-w-md">
+                Gracias por escribirme. Te responderé directamente a tu correo lo antes posible.
+              </p>
               <button
                 onClick={() => setStatus("idle")}
-                className="mt-4 text-sm text-accent underline underline-offset-4"
+                className="mt-6 text-sm text-accent underline underline-offset-4 hover:text-primary transition-colors"
               >
                 Enviar otro mensaje
               </button>
             </div>
           ) : (
             <form onSubmit={handleSubmit} noValidate className="space-y-6">
-              {/* Name */}
               <div>
                 <label className="block text-sm font-semibold text-foreground mb-2" htmlFor="name">
                   <User size={14} className="inline mr-1.5 text-accent" />
@@ -208,9 +230,10 @@ export default function Contact() {
                   type="text"
                   value={form.name}
                   onChange={handleChange}
+                  disabled={status === "sending"}
                   placeholder="Tu nombre"
                   maxLength={100}
-                  className={`w-full px-4 py-3 rounded-xl bg-background/50 border text-foreground placeholder:text-muted-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/60 transition-all ${
+                  className={`w-full px-4 py-3 rounded-xl bg-background/50 border text-foreground placeholder:text-muted-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/60 transition-all disabled:opacity-60 ${
                     errors.name ? "border-destructive" : "border-border"
                   }`}
                 />
@@ -221,7 +244,6 @@ export default function Contact() {
                 )}
               </div>
 
-              {/* Email */}
               <div>
                 <label className="block text-sm font-semibold text-foreground mb-2" htmlFor="email">
                   <AtSign size={14} className="inline mr-1.5 text-accent" />
@@ -233,9 +255,10 @@ export default function Contact() {
                   type="email"
                   value={form.email}
                   onChange={handleChange}
+                  disabled={status === "sending"}
                   placeholder="tucorreo@ejemplo.com"
                   maxLength={255}
-                  className={`w-full px-4 py-3 rounded-xl bg-background/50 border text-foreground placeholder:text-muted-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/60 transition-all ${
+                  className={`w-full px-4 py-3 rounded-xl bg-background/50 border text-foreground placeholder:text-muted-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/60 transition-all disabled:opacity-60 ${
                     errors.email ? "border-destructive" : "border-border"
                   }`}
                 />
@@ -246,7 +269,6 @@ export default function Contact() {
                 )}
               </div>
 
-              {/* Message */}
               <div>
                 <label className="block text-sm font-semibold text-foreground mb-2" htmlFor="message">
                   <MessageSquare size={14} className="inline mr-1.5 text-accent" />
@@ -257,10 +279,11 @@ export default function Contact() {
                   name="message"
                   value={form.message}
                   onChange={handleChange}
+                  disabled={status === "sending"}
                   placeholder="Cuéntame sobre tu proyecto o propuesta..."
                   rows={5}
                   maxLength={2000}
-                  className={`w-full px-4 py-3 rounded-xl bg-background/50 border text-foreground placeholder:text-muted-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/60 transition-all resize-none ${
+                  className={`w-full px-4 py-3 rounded-xl bg-background/50 border text-foreground placeholder:text-muted-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/60 transition-all resize-none disabled:opacity-60 ${
                     errors.message ? "border-destructive" : "border-border"
                   }`}
                 />
@@ -276,15 +299,13 @@ export default function Contact() {
                 </div>
               </div>
 
-              {/* Error banner */}
               {status === "error" && (
                 <div className="flex items-center gap-2 p-3 rounded-xl bg-destructive/10 border border-destructive/30 text-destructive text-sm">
                   <AlertCircle size={16} />
-                  Hubo un error al enviar. Por favor intenta de nuevo o escríbeme directamente.
+                  Hubo un error al enviar. Intenta de nuevo o escríbeme directamente a {RECIPIENT_EMAIL}.
                 </div>
               )}
 
-              {/* Submit */}
               <button
                 type="submit"
                 disabled={status === "sending"}
@@ -310,7 +331,6 @@ export default function Contact() {
           )}
         </div>
 
-        {/* Download CV subtle */}
         <div className="animate-in-view mt-12 flex justify-center" style={{ transitionDelay: "0.6s" }}>
           <button
             onClick={() => generateCV()}
@@ -321,7 +341,6 @@ export default function Contact() {
           </button>
         </div>
 
-        {/* Footer */}
         <div className="mt-16 pt-8 border-t border-border/50 flex flex-col sm:flex-row items-center justify-between gap-4 text-muted-foreground text-sm">
           <p>
             Diseñado con <span className="text-accent">❤️</span> por{" "}

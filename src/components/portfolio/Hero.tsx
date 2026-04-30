@@ -127,9 +127,9 @@ export default function Hero() {
 
         {/* Authority phrase */}
         <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto mb-12 leading-relaxed">
-          "Construyo soluciones{" "}
-          <span className="text-accent font-semibold">eficientes, escalables</span> y orientadas a resultados con{" "}
-          <span className="text-primary font-semibold">código limpio</span> y mentalidad estratégica."
+          Diseño <span className="text-primary font-semibold">APIs que escalan</span>, <span className="text-accent font-semibold">bases de datos que vuelan</span> y arquitecturas que no se rompen bajo presión.
+          <br className="hidden sm:block" />
+          El backend invisible que sostiene cada experiencia que <span className="text-primary font-semibold">sí</span> se siente.
         </p>
 
         {/* CTA Buttons */}
