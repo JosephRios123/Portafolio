@@ -39,21 +39,21 @@ export default function About() {
   useScrollAnimation(sectionRef);
 
   return (
-    <section id="about" ref={sectionRef} className="py-28 px-6 section-divider">
+    <section id="about" ref={sectionRef} className="py-20 sm:py-28 px-4 sm:px-6 section-divider">
       <div className="max-w-7xl mx-auto">
         <div className="animate-in-view flex items-center gap-3 mb-4">
           <span className="w-8 h-px gradient-bg" />
           <span className="text-accent text-sm font-mono font-bold tracking-widest uppercase">Sobre Mí</span>
         </div>
 
-        <h2 className="animate-in-view text-4xl sm:text-5xl font-black mb-16 leading-tight" style={{ transitionDelay: "0.1s" }}>
+        <h2 className="animate-in-view text-3xl sm:text-4xl md:text-5xl font-black mb-10 sm:mb-16 leading-tight" style={{ transitionDelay: "0.1s" }}>
           Estrategia + <span className="gradient-text">Código</span>
         </h2>
 
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
+        <div className="grid lg:grid-cols-2 gap-10 sm:gap-12 items-center">
           {/* Orbital tech system */}
           <div className="animate-in-view order-2 lg:order-1 flex justify-center" style={{ transitionDelay: "0.15s" }}>
-            <div className="relative" style={{ width: "340px", height: "340px" }}>
+            <div className="relative w-[260px] h-[260px] xs:w-[300px] xs:h-[300px] sm:w-[340px] sm:h-[340px]">
               {/* Orbit rings */}
               <div
                 className="absolute rounded-full"
