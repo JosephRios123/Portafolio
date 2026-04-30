@@ -97,7 +97,7 @@ export default function Hero() {
         }}
       />
 
-      <div className="relative z-10 max-w-5xl mx-auto px-6 text-center">
+      <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 text-center w-full">
         {/* Badge */}
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/30 bg-primary/10 text-primary text-sm font-medium mb-8 animate-fade-in">
           <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />
@@ -106,7 +106,7 @@ export default function Hero() {
 
         {/* Name */}
         <h1
-          className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black tracking-tight mb-6 leading-none"
+          className="text-4xl xs:text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black tracking-tight mb-6 leading-[1.05]"
           style={{ animationDelay: "0.1s" }}
         >
           <span className="block text-foreground">Jose Manuel</span>
@@ -114,12 +114,12 @@ export default function Hero() {
         </h1>
 
         {/* Typewriter */}
-        <div className="h-12 flex items-center justify-center mb-6">
-          <p className="text-xl sm:text-2xl md:text-3xl font-bold text-muted-foreground font-mono">
+        <div className="h-10 sm:h-12 flex items-center justify-center mb-6">
+          <p className="text-base sm:text-2xl md:text-3xl font-bold text-muted-foreground font-mono px-2">
             <span className="text-accent">&gt; </span>
             <span>{typedText}</span>
             <span
-              className="inline-block w-0.5 h-7 bg-accent ml-1 align-middle"
+              className="inline-block w-0.5 h-5 sm:h-7 bg-accent ml-1 align-middle"
               style={{ animation: "blink 1s step-end infinite" }}
             />
           </p>
@@ -133,10 +133,10 @@ export default function Hero() {
         </p>
 
         {/* CTA Buttons */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-4 max-w-md sm:max-w-none mx-auto">
           <a
             href="#projects"
-            className="group flex items-center gap-2 px-8 py-4 rounded-full gradient-bg text-background font-bold text-lg hover:opacity-90 hover:scale-105 transition-all duration-300"
+            className="group flex items-center justify-center gap-2 px-6 sm:px-8 py-3.5 sm:py-4 rounded-full gradient-bg text-background font-bold text-base sm:text-lg hover:opacity-90 hover:scale-105 transition-all duration-300 min-h-[48px]"
             style={{ boxShadow: "0 0 40px hsl(217 91% 60% / 0.4), 0 8px 32px hsl(187 92% 42% / 0.2)" }}
           >
             Ver proyectos
@@ -144,14 +144,14 @@ export default function Hero() {
           </a>
           <a
             href="#contact"
-            className="group flex items-center gap-2 px-8 py-4 rounded-full border-2 border-primary/50 text-primary font-bold text-lg hover:border-accent hover:text-accent hover:bg-accent/5 transition-all duration-300"
+            className="group flex items-center justify-center gap-2 px-6 sm:px-8 py-3.5 sm:py-4 rounded-full border-2 border-primary/50 text-primary font-bold text-base sm:text-lg hover:border-accent hover:text-accent hover:bg-accent/5 transition-all duration-300 min-h-[48px]"
           >
             Contactar
             <Mail size={18} className="group-hover:scale-110 transition-transform" />
           </a>
           <button
             onClick={() => generateCV()}
-            className="group flex items-center gap-2 px-8 py-4 rounded-full border-2 border-accent/50 text-accent font-bold text-lg hover:border-primary hover:text-primary hover:bg-primary/5 transition-all duration-300 active:scale-95"
+            className="group flex items-center justify-center gap-2 px-6 sm:px-8 py-3.5 sm:py-4 rounded-full border-2 border-accent/50 text-accent font-bold text-base sm:text-lg hover:border-primary hover:text-primary hover:bg-primary/5 transition-all duration-300 active:scale-95 min-h-[48px]"
           >
             Descargar CV
             <Download size={18} className="group-hover:translate-y-0.5 transition-transform" />
