@@ -21,10 +21,12 @@ const Ctx = createContext<AdminAuthCtx>({
 export function AdminAuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [sessionLoading, setSessionLoading] = useState(true);
+  const [roleLoading, setRoleLoading] = useState(false);
 
   useEffect(() => {
     const checkRole = async (uid: string) => {
+      setRoleLoading(true);
       const { data } = await supabase
         .from("user_roles")
         .select("role")
@@ -32,24 +34,27 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
         .eq("role", "admin")
         .maybeSingle();
       setIsAdmin(!!data);
+      setRoleLoading(false);
     };
 
     const { data: sub } = supabase.auth.onAuthStateChange((_event, sess) => {
       setSession(sess);
       if (sess?.user) {
-        // Defer to avoid deadlock
+        setRoleLoading(true);
+        // Defer to avoid auth deadlock
         setTimeout(() => checkRole(sess.user.id), 0);
       } else {
         setIsAdmin(false);
+        setRoleLoading(false);
       }
     });
 
     supabase.auth.getSession().then(({ data: { session: sess } }) => {
       setSession(sess);
       if (sess?.user) {
-        checkRole(sess.user.id).finally(() => setLoading(false));
+        checkRole(sess.user.id).finally(() => setSessionLoading(false));
       } else {
-        setLoading(false);
+        setSessionLoading(false);
       }
     });
 
@@ -58,7 +63,11 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
 
   const signOut = async () => {
     await supabase.auth.signOut();
+    setSession(null);
+    setIsAdmin(false);
   };
+
+  const loading = sessionLoading || (!!session && roleLoading);
 
   return (
     <Ctx.Provider value={{ session, user: session?.user ?? null, isAdmin, loading, signOut }}>
