@@ -49,14 +49,14 @@ export default function Experience() {
   useScrollAnimation(sectionRef);
 
   return (
-    <section id="experience" ref={sectionRef} className="py-28 px-6 section-divider">
+    <section id="experience" ref={sectionRef} className="py-20 sm:py-28 px-4 sm:px-6 section-divider">
       <div className="max-w-5xl mx-auto">
         <div className="animate-in-view flex items-center gap-3 mb-4">
           <span className="w-8 h-px gradient-bg" />
           <span className="text-accent text-sm font-mono font-bold tracking-widest uppercase">Experiencia</span>
         </div>
 
-        <h2 className="animate-in-view text-4xl sm:text-5xl font-black mb-16" style={{ transitionDelay: "0.1s" }}>
+        <h2 className="animate-in-view text-3xl sm:text-4xl md:text-5xl font-black mb-10 sm:mb-16" style={{ transitionDelay: "0.1s" }}>
           Trayectoria <span className="gradient-text">Profesional</span>
         </h2>
 

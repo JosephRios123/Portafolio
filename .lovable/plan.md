@@ -1,79 +1,125 @@
-## Plan de implementación — 4 módulos
+# Plan: Admin Panel Funcional + Responsive Integral
 
-### Módulo 1 — Hero: párrafo de impacto
-Reemplazar el párrafo actual en `src/components/portfolio/Hero.tsx` (líneas 129-133) por dos líneas con punch técnico backend, p. ej.:
-
-> "Diseño APIs que escalan, bases de datos que vuelan y arquitecturas que no se rompen bajo presión.
-> El backend invisible que sostiene cada experiencia que importa."
-
-Mantengo el highlight de palabras clave (`APIs`, `bases de datos`, `arquitecturas`) en `text-primary` / `text-accent` para conservar la estética.
+Dos correcciones críticas, ejecutadas con arquitectura limpia y respetando la identidad visual existente (dark + azul/cyan + glassmorphism).
 
 ---
 
-### Módulo 2 — CV descargable rediseñado
-Reescribir `src/lib/generateCV.ts` desde cero con identidad editorial:
+## 🔴 Parte 1 — Reparar y elevar el Panel Admin
 
-- **Paleta**: fondo blanco hueso `#FAFAF9`, texto `#0D0D0D`, acento único **teal oscuro `#0F766E`** (transmite seniority sin gritar).
-- **Tipografía**: `helvetica` bold para headings (proxy de Inter en jsPDF) + `times` para cuerpo (serif con clase). Tamaños jerárquicos (nombre 32pt, rol 12pt acento, sección 9pt uppercase tracking, cuerpo 9.5pt serif).
-- **Layout 1 columna ATS-safe**: sin tablas ni columnas en zonas críticas. Solo líneas hairline (0.2mm) como separadores y labels uppercase con letter-spacing manual (espacios entre letras).
-- **Header**: nombre dominante a la izquierda, rol con acento debajo, links como texto limpio (github / linkedin / portfolio) sin íconos.
-- **Stats row**: 3 números destacados (ej. `2+ años exp` · `4+ tecnologías core` · `3+ certificaciones`) en grande con micro-label uppercase abajo.
-- **Skills agrupados por categoría** ("Backend Core", "Bases de Datos", "DevOps & Cloud", "Metodologías") como chips de borde fino sin relleno (rectángulos con `setDrawColor` y padding).
-- **Bullets de experiencia**: cada uno empieza con verbo en pasado en negrita (Arquitecté, Desarrollé, Optimicé, Automaticé, Escalé) + dato cuantificable cuando exista.
-- **Cierre**: frase firma estilo manifesto: *"Construyo backends que sobreviven al éxito."*
-- ATS-safe: solo texto vectorial, keywords incrustadas (Laravel, .NET, MySQL, REST API, SCRUM, testing).
+### 1.1 Diagnóstico del bug de redirección
 
----
+El login muestra el toast pero no entra al panel. Causa raíz:
 
-### Módulo 3 — Panel Admin con CRUDs (requiere Lovable Cloud)
-Activar Lovable Cloud para auth + DB persistente.
+- `AdminLogin.tsx` llama `signInWithPassword` y luego `navigate("/admin")` **antes** de que el listener `onAuthStateChange` de `useAdminAuth` haya verificado el rol via `setTimeout(checkRole, 0)`.
+- Al llegar a `/admin`, `AdminLayout` ve `isAdmin = false` (todavía cargando) y como `loading` ya es `false` (la sesión inicial sí se resolvió), redirige de vuelta a `/admin/login`. Loop silencioso.
 
-**Backend (Supabase)**:
-- Tablas: `projects`, `experiences`, `experience_bullets` (1:N), `mindset_principles`, `formations`. Cada una con RLS: lectura pública (anon SELECT), escritura solo admin.
-- Tabla `user_roles` + enum `app_role` + función `has_role(uuid, app_role)` SECURITY DEFINER (patrón estándar anti-recursión).
-- Bucket público `project-previews` para imágenes opcionales de proyectos.
-- Seed de la cuenta admin `cresposfelices@gmail.com` con rol `admin`. La contraseña `ppmm0204*` se establece al crear el usuario en auth.
+**Fix**: introducir un estado `roleLoading` separado en `useAdminAuth`. Mientras haya `session` pero el rol no se haya resuelto, `loading=true`. Así `AdminLayout` espera al spinner y luego entra correctamente. Además, en `AdminLogin` no navegamos manualmente: el `useEffect` que ya observa `session && isAdmin` hace la redirección de forma reactiva (única fuente de verdad).
 
-**Frontend**:
-- Ruta `/admin/login` con formulario email/contraseña (default Lovable Cloud auth, sin OAuth).
-- Ruta protegida `/admin` con layout: sidebar (`Sidebar` shadcn) con 4 entradas (Proyectos, Experiencia, Mentalidad, Formación) + topbar con avatar/logout.
-- Cada CRUD comparte un patrón: tabla con shadcn `Table` (acciones editar/eliminar), botón "Nuevo", `Sheet` lateral con formulario `react-hook-form` + zod, toast (sonner) al guardar/borrar.
-- **CRUD Proyectos**: nombre, tags (chips input), descripción ≤200, link, upload imagen a bucket.
-- **CRUD Experiencia**: cargo, empresa, fecha inicio/fin (toggle "Actualidad"), bullets dinámicos (sub-tabla con add/remove inline).
-- **CRUD Mentalidad**: frase, descripción larga, categoría (select Técnica/Humana/Estratégica).
-- **CRUD Formación**: nombre, institución, ciudad, estado (select), fecha.
+### 1.2 Nuevo Dashboard admin (reemplaza `AdminIndex.tsx`)
 
-**Vistas públicas**: refactorizar `Projects.tsx`, `Experience.tsx`, `Mindset.tsx`, `Education.tsx` para leer de Supabase con fallback al diseño "Próximamente" si no hay datos. Mantener estética actual + animaciones (timeline para experiencia, bloques asimétricos glassmorphism para mentalidad, grid con íconos de estado para formación, cards hover con badges para proyectos).
+Layout tipo "startup Serie B", usando los componentes y tokens ya existentes (`glass-card`, `gradient-bg`, `text-accent`, etc.):
 
----
+- **Header sticky** dentro del `<main>` del `AdminLayout`: avatar circular con iniciales del email, nombre, badge "Admin", botón "Cerrar sesión" (solo en mobile, en desktop sigue en sidebar).
+- **Fila de KPIs (4 tarjetas)**: cuentas reales obtenidas con `supabase.from('<tabla>').select('*', { count: 'exact', head: true })`:
+  - Proyectos publicados
+  - Experiencias registradas
+  - Principios de mentalidad
+  - Formaciones
+  Cada KPI: ícono lucide, número grande animado (count-up con `requestAnimationFrame`, sin librerías), delta sutil "+ actualizado hace X".
+- **Gráfica de actividad (sparkline SVG inline)**: agregamos los `created_at` de las 4 tablas por día de los últimos 14 días → área chart minimalista en SVG puro (sin recharts para no añadir peso). Tooltip on hover.
+- **Tabla de actividad reciente**: union de las 4 tablas ordenadas por `updated_at desc limit 8`, con columnas: Tipo (chip color por entidad), Título, Fecha relativa, Acción (botón "Editar" → ruta CRUD correspondiente). En mobile se transforma en lista de cards apiladas.
+- **Atajos rápidos**: 4 cards lineales con CTA "Crear nuevo" → llevan a la ruta CRUD.
+- Transición de entrada: `animate-fade-in` escalonado (`animation-delay` por bloque).
 
-### Módulo 4 — Email premium con Reply-To
-Cambios en `src/components/portfolio/Contact.tsx`:
+### 1.3 Sidebar `AdminLayout` — colapsable y responsive
 
-1. Cambiar `to_email` enviado a EmailJS por `josephcantantecontact@gmail.com`.
-2. Añadir variables al payload: `reply_to: result.data.email`, `subject: \`Nuevo mensaje desde el portafolio — ${result.data.name}\``.
-3. Botón submit con 3 estados visuales: idle → loading (spinner + "Enviando...") → success (checkmark animado SVG con stroke-dashoffset + texto "¡Mensaje enviado!"), error con banner rojo sin destruir el form.
+- Desktop (`md+`): sidebar fijo 256px (como hoy).
+- Tablet (`sm`–`md`): sidebar colapsado a 64px solo iconos, con tooltip al hover.
+- Mobile (`<sm`): sidebar oculto, drawer off-canvas accionado por botón hamburguesa en el header del main. Click en backdrop o link cierra.
+- Estado controlado con `useState` local + `useIsMobile` (ya existe el hook).
+- Header del main contiene: hamburguesa (mobile), título de la subruta (derivado del pathname), avatar+menu.
 
-**Plantilla HTML para EmailJS (te la entrego al final)**:
-- Header dark `#0D0D0D`, título "Portafolio · Jose Manuel" con acento `#06B6D4`.
-- Body claro: nombre del remitente bold, email como `<a href="mailto:{{from_email}}">`, mensaje en blockquote con `border-left: 4px solid #06B6D4` y fondo `#F8FAFC`.
-- Footer con la nota de "Responde directamente para contactar al remitente".
-- Tablas inline con `style=""` para compatibilidad Gmail desktop/mobile.
+### 1.4 Rutas protegidas — `<ProtectedRoute>`
 
-**Configuración manual que tú harás en EmailJS dashboard**:
-- En la plantilla `template_3wfaklf`, setear el campo **Reply-To** = `{{reply_to}}`.
-- Pegar el HTML que te entregaré en el body de la plantilla.
-- Dejar **To Email** = `josephcantantecontact@gmail.com` (o usar `{{to_email}}`).
-- Subject = `{{subject}}`.
+Extraer el guard de `AdminLayout` a un componente reusable `ProtectedRoute` que:
+- Espera `loading` (incluye `roleLoading`).
+- Si no hay `session` o `!isAdmin` → `<Navigate to="/admin/login" replace />`.
+- Si OK → `<Outlet />`.
+
+Se envuelve `<Route path="/admin">` con él en `App.tsx`. `AdminLayout` queda solo presentacional.
+
+### 1.5 Logout limpio
+
+`signOut` ya llama `supabase.auth.signOut()`. Asegurar que tras eso: limpiamos estado local (`setSession(null)`, `setIsAdmin(false)` lo hace el listener) y navegamos a `/` (no a `/admin/login`) para sentir "salida real".
 
 ---
 
-### Detalles técnicos
+## 🟡 Parte 2 — Responsive Integral (320px → 1920px)
 
-- **Orden de ejecución**: Módulo 1 → Módulo 4 (rápidos, sin backend) → activar Lovable Cloud → Módulo 2 (CV) → Módulo 3 (admin completo, el más extenso).
-- Dependencias nuevas: ninguna en Módulo 1, 2, 4. En Módulo 3: `react-hook-form` y `@hookform/resolvers` ya están instalados con shadcn.
-- Las vistas públicas mantendrán el `Projects.tsx` "Próximamente" como fallback cuando la tabla esté vacía.
-- Auth: contraseña fuerte recomendada; `ppmm0204*` cumple mínimo. La cuenta admin queda creada y con rol asignado vía seed automático.
-- RLS estricto: tablas públicas readable sin auth, mutaciones solo si `has_role(auth.uid(), 'admin')`.
-- Validación con Zod en todos los formularios admin + límites de longitud.
+Auditoría sección por sección. Reglas globales aplicadas:
 
+- Tipografía fluida con `clamp()` en `tailwind.config.ts` o usando escalas `text-base sm:text-lg md:text-xl` ya presentes — verificar que ninguna headline use `text-5xl` sin variante sm menor.
+- `overflow-x: hidden` en `<main>` para garantizar cero scroll horizontal.
+- Touch targets ≥ 44×44 px (revisar botones ícono del Navbar mobile, chips de skills, controles de admin).
+- Padding lateral mínimo `px-4` en mobile, `px-6` sm, `px-8` md+.
+
+### Cambios concretos por archivo
+
+| Archivo | Ajustes |
+|---|---|
+| `src/index.css` | Añadir `html, body { overflow-x: hidden; }` + utility `.touch-target { min-width: 44px; min-height: 44px; }` |
+| `Navbar.tsx` | Hamburguesa: aumentar a `w-11 h-11` con `flex items-center justify-center`. Animar el menu mobile con transición (no aparición seca). Bloquear scroll del body cuando `menuOpen`. Cerrar con tecla `Esc`. |
+| `Hero.tsx` | Headline `text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl` (hoy arranca en 5xl, demasiado para 320px). CTAs en mobile: stack vertical full-width `w-full sm:w-auto`. Reducir cantidad de partículas en mobile (`useIsMobile` → 8 en vez de 20) por performance. |
+| `Projects.tsx` | Grid `grid-cols-1 md:grid-cols-2 lg:grid-cols-3`. Cards con `min-w-0` para evitar overflow de tags. Tags con `flex-wrap`. |
+| `Experience.tsx` | Si usa timeline con línea izquierda, en mobile cambiar a línea simple sin offset, padding-left reducido. |
+| `Mindset.tsx` | Asegurar grid responsive y que las tarjetas no fuercen ancho mínimo. |
+| `About.tsx` | Las órbitas del stack tecnológico: en mobile (`<sm`) reducir radio o cambiar a grid de chips estático para que no se salga de la pantalla. Tooltip `whitespace-nowrap` (línea 140) → en mobile mejor wrap. |
+| `Education.tsx` | Accordions full-width, padding interno reducido en mobile. |
+| `Skills.tsx` | Grid `grid-cols-2 sm:grid-cols-3 md:grid-cols-4`. |
+| `Contact.tsx` | Form: inputs `w-full`, labels arriba, botón submit full-width en mobile. Espaciado `space-y-4 sm:space-y-5`. |
+| `AdminLayout.tsx` | Drawer mobile descrito en 1.3. |
+| `AdminLogin.tsx` | Card `max-w-md` ya OK; padding `p-6 sm:p-8`. Inputs `text-base` (evita zoom de iOS al enfocar). |
+| Páginas CRUD admin | Tablas envueltas en `<div class="overflow-x-auto">`. Formularios: `grid-cols-1 sm:grid-cols-2`. Botones de acción min 44px. |
+
+### Breakpoints de prueba mental
+- **320 (iPhone SE)**: Hero legible, CTAs apilados, navbar hamburguesa, sin overflow.
+- **390 (actual del usuario)**: Mismo, ya verificado en preview.
+- **768 (tablet)**: Sidebar admin colapsado iconos, grids 2 cols.
+- **1024+**: Layout completo desktop.
+
+---
+
+## 📦 Resumen de archivos tocados
+
+**Nuevos**
+- `src/components/admin/ProtectedRoute.tsx`
+- `src/components/admin/AdminHeader.tsx`
+- `src/components/admin/KpiCard.tsx`
+- `src/components/admin/ActivitySparkline.tsx`
+- `src/components/admin/RecentActivity.tsx`
+
+**Modificados**
+- `src/hooks/useAdminAuth.tsx` (estado `roleLoading`)
+- `src/App.tsx` (ProtectedRoute wrapping)
+- `src/pages/admin/AdminLogin.tsx` (quitar navigate manual)
+- `src/pages/admin/AdminLayout.tsx` (sidebar colapsable + drawer mobile + header)
+- `src/pages/admin/AdminIndex.tsx` (dashboard nuevo con KPIs/sparkline/actividad)
+- Páginas CRUD: ProjectsAdmin, ExperienceAdmin, MindsetAdmin, FormationsAdmin (responsive)
+- `src/index.css` (overflow-x hidden, touch-target)
+- `src/components/portfolio/*` (responsive fixes en cada sección)
+
+**Sin tocar**: Supabase schema (ya está bien), `generateCV.ts`, `Contact.tsx` lógica de email (ya quedó del módulo anterior).
+
+---
+
+## ✅ Criterios de aceptación
+
+1. Login en `/admin/login` con `cresposfelices@gmail.com` → entra al dashboard sin loops.
+2. Refrescar en `/admin` mantiene sesión.
+3. Acceso a `/admin` sin sesión → redirige a `/admin/login`.
+4. Logout → limpia estado y vuelve a `/`.
+5. En 320px no hay scroll horizontal en ninguna sección ni en admin.
+6. Hamburguesa abre/cierra suavemente y bloquea scroll del body.
+7. Sidebar admin se transforma en drawer en mobile.
+8. Todos los botones táctiles ≥ 44px.
+9. Dashboard muestra conteos reales desde Supabase y actividad reciente.

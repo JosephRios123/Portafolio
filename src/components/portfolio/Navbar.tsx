@@ -20,6 +20,17 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Lock body scroll when mobile menu open + Esc to close
+  useEffect(() => {
+    document.body.style.overflow = menuOpen ? "hidden" : "";
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setMenuOpen(false);
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = "";
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [menuOpen]);
+
   return (
     <nav
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
@@ -28,8 +39,8 @@ export default function Navbar() {
           : "bg-transparent"
       }`}
     >
-      <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-        <a href="#hero" className="flex items-center gap-2 group">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
+        <a href="#hero" className="flex items-center gap-2 group touch-target">
           <div className="w-8 h-8 rounded-lg gradient-bg flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
             <Code2 size={16} className="text-background" />
           </div>
@@ -59,39 +70,46 @@ export default function Navbar() {
         </a>
 
         <button
-          className="md:hidden text-muted-foreground hover:text-foreground transition-colors"
+          className="md:hidden touch-target inline-flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
           onClick={() => setMenuOpen(!menuOpen)}
+          aria-label={menuOpen ? "Cerrar menú" : "Abrir menú"}
+          aria-expanded={menuOpen}
         >
           {menuOpen ? <X size={22} /> : <Menu size={22} />}
         </button>
       </div>
 
-      {menuOpen && (
-        <div className="md:hidden backdrop-blur-xl bg-background/95 border-t border-primary/10 px-6 py-4">
-          <ul className="flex flex-col gap-2">
+      {/* Mobile menu */}
+      <div
+        className={`md:hidden overflow-hidden backdrop-blur-xl bg-background/95 border-t border-primary/10 transition-[max-height,opacity] duration-300 ease-out ${
+          menuOpen ? "max-h-[80vh] opacity-100" : "max-h-0 opacity-0"
+        }`}
+      >
+        <div className="px-4 sm:px-6 py-4">
+          <ul className="flex flex-col gap-1">
             {navLinks.map((link) => (
               <li key={link.href}>
                 <a
                   href={link.href}
                   onClick={() => setMenuOpen(false)}
-                  className="block py-3 text-muted-foreground hover:text-foreground border-b border-border/50 transition-colors"
+                  className="block py-3 text-muted-foreground hover:text-foreground border-b border-border/50 transition-colors min-h-[44px]"
                 >
                   {link.label}
                 </a>
               </li>
             ))}
-            <li className="pt-2">
+            <li className="pt-3">
               <a
                 href="#contact"
                 onClick={() => setMenuOpen(false)}
-                className="block text-center py-3 rounded-full gradient-bg text-background font-semibold"
+                className="block text-center py-3 rounded-full gradient-bg text-background font-semibold min-h-[48px]"
               >
                 Contrátame
               </a>
             </li>
           </ul>
         </div>
-      )}
+      </div>
     </nav>
   );
 }
