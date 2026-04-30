@@ -40,7 +40,7 @@ export default function Mindset() {
   useScrollAnimation(sectionRef);
 
   return (
-    <section id="mindset" ref={sectionRef} className="py-28 px-6 section-divider" style={{
+    <section id="mindset" ref={sectionRef} className="py-20 sm:py-28 px-4 sm:px-6 section-divider" style={{
       background: "radial-gradient(ellipse 60% 40% at 30% 50%, hsl(187 92% 42% / 0.05) 0%, transparent 60%)"
     }}>
       <div className="max-w-7xl mx-auto">
@@ -51,7 +51,7 @@ export default function Mindset() {
 
         <div className="animate-in-view flex items-center gap-3 mb-4" style={{ transitionDelay: "0.05s" }}>
           <Heart size={20} className="text-accent" />
-          <h2 className="text-4xl sm:text-5xl font-black" style={{ transitionDelay: "0.1s" }}>
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-black" style={{ transitionDelay: "0.1s" }}>
             Más que código: la <span className="gradient-text">mentalidad</span> que me forjó
           </h2>
         </div>

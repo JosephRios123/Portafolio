@@ -138,7 +138,7 @@ export default function Contact() {
   };
 
   return (
-    <section id="contact" ref={sectionRef} className="py-28 px-6 section-divider relative overflow-hidden">
+    <section id="contact" ref={sectionRef} className="py-20 sm:py-28 px-4 sm:px-6 section-divider relative overflow-hidden">
       <div
         className="absolute inset-0 pointer-events-none"
         style={{

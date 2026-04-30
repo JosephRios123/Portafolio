@@ -82,7 +82,7 @@ export default function Skills() {
   useScrollAnimation(sectionRef);
 
   return (
-    <section id="skills" ref={sectionRef} className="py-28 px-6 section-divider">
+    <section id="skills" ref={sectionRef} className="py-20 sm:py-28 px-4 sm:px-6 section-divider">
       <div className="max-w-7xl mx-auto">
         {/* Soft Skills */}
         <div className="animate-in-view flex items-center gap-3 mb-4">
@@ -90,7 +90,7 @@ export default function Skills() {
           <span className="text-accent text-sm font-mono font-bold tracking-widest uppercase">Habilidades</span>
         </div>
 
-        <h2 className="animate-in-view text-4xl sm:text-5xl font-black mb-4" style={{ transitionDelay: "0.1s" }}>
+        <h2 className="animate-in-view text-3xl sm:text-4xl md:text-5xl font-black mb-4" style={{ transitionDelay: "0.1s" }}>
           Habilidades <span className="gradient-text">Blandas</span>
         </h2>
         <p className="animate-in-view text-muted-foreground text-lg mb-16 max-w-xl" style={{ transitionDelay: "0.15s" }}>
@@ -122,7 +122,7 @@ export default function Skills() {
           <span className="text-accent text-sm font-mono font-bold tracking-widest uppercase">Aprendizaje Activo</span>
         </div>
 
-        <h2 className="animate-in-view text-4xl sm:text-5xl font-black mb-12" style={{ transitionDelay: "0.35s" }}>
+        <h2 className="animate-in-view text-3xl sm:text-4xl md:text-5xl font-black mb-8 sm:mb-12" style={{ transitionDelay: "0.35s" }}>
           Siempre en <span className="gradient-text">modo aprendizaje</span>
         </h2>
 
@@ -150,7 +150,7 @@ export default function Skills() {
           <span className="text-accent text-sm font-mono font-bold tracking-widest uppercase">Idiomas</span>
         </div>
 
-        <h2 className="animate-in-view text-4xl sm:text-5xl font-black mb-12" style={{ transitionDelay: "0.55s" }}>
+        <h2 className="animate-in-view text-3xl sm:text-4xl md:text-5xl font-black mb-8 sm:mb-12" style={{ transitionDelay: "0.55s" }}>
           <span className="gradient-text">Lenguajes</span> que domino
         </h2>
 

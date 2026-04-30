@@ -17,7 +17,7 @@ export default function Projects() {
   useScrollAnimation(sectionRef);
 
   return (
-    <section id="projects" ref={sectionRef} className="py-28 px-6 section-divider relative overflow-hidden">
+    <section id="projects" ref={sectionRef} className="py-20 sm:py-28 px-4 sm:px-6 section-divider relative overflow-hidden">
       {/* Background effects */}
       <div className="absolute inset-0 pointer-events-none" style={{
         background: "radial-gradient(ellipse 60% 50% at 50% 50%, hsl(217 91% 60% / 0.06) 0%, transparent 70%)"
@@ -35,7 +35,7 @@ export default function Projects() {
           <span className="text-accent text-sm font-mono font-bold tracking-widest uppercase">Proyectos</span>
         </div>
 
-        <h2 className="animate-in-view text-4xl sm:text-5xl font-black mb-6" style={{ transitionDelay: "0.1s" }}>
+        <h2 className="animate-in-view text-3xl sm:text-4xl md:text-5xl font-black mb-6" style={{ transitionDelay: "0.1s" }}>
           Lo que estoy <span className="gradient-text">construyendo</span>
         </h2>
 
