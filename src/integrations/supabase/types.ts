@@ -14,16 +14,217 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      experience_bullets: {
+        Row: {
+          created_at: string
+          display_order: number
+          experience_id: string
+          id: string
+          text: string
+        }
+        Insert: {
+          created_at?: string
+          display_order?: number
+          experience_id: string
+          id?: string
+          text: string
+        }
+        Update: {
+          created_at?: string
+          display_order?: number
+          experience_id?: string
+          id?: string
+          text?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "experience_bullets_experience_id_fkey"
+            columns: ["experience_id"]
+            isOneToOne: false
+            referencedRelation: "experiences"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      experiences: {
+        Row: {
+          color: string
+          company: string
+          created_at: string
+          display_order: number
+          end_date: string | null
+          id: string
+          is_current: boolean
+          role: string
+          start_date: string
+          updated_at: string
+        }
+        Insert: {
+          color?: string
+          company: string
+          created_at?: string
+          display_order?: number
+          end_date?: string | null
+          id?: string
+          is_current?: boolean
+          role: string
+          start_date: string
+          updated_at?: string
+        }
+        Update: {
+          color?: string
+          company?: string
+          created_at?: string
+          display_order?: number
+          end_date?: string | null
+          id?: string
+          is_current?: boolean
+          role?: string
+          start_date?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      formations: {
+        Row: {
+          city: string | null
+          course: string
+          created_at: string
+          display_order: number
+          id: string
+          institution: string
+          obtained_date: string | null
+          status: Database["public"]["Enums"]["formation_status"]
+          updated_at: string
+        }
+        Insert: {
+          city?: string | null
+          course: string
+          created_at?: string
+          display_order?: number
+          id?: string
+          institution: string
+          obtained_date?: string | null
+          status?: Database["public"]["Enums"]["formation_status"]
+          updated_at?: string
+        }
+        Update: {
+          city?: string | null
+          course?: string
+          created_at?: string
+          display_order?: number
+          id?: string
+          institution?: string
+          obtained_date?: string | null
+          status?: Database["public"]["Enums"]["formation_status"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      mindset_principles: {
+        Row: {
+          category: Database["public"]["Enums"]["mindset_category"]
+          created_at: string
+          description: string
+          display_order: number
+          id: string
+          phrase: string
+          updated_at: string
+        }
+        Insert: {
+          category: Database["public"]["Enums"]["mindset_category"]
+          created_at?: string
+          description: string
+          display_order?: number
+          id?: string
+          phrase: string
+          updated_at?: string
+        }
+        Update: {
+          category?: Database["public"]["Enums"]["mindset_category"]
+          created_at?: string
+          description?: string
+          display_order?: number
+          id?: string
+          phrase?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      projects: {
+        Row: {
+          created_at: string
+          description: string
+          display_order: number
+          id: string
+          image_url: string | null
+          link: string | null
+          name: string
+          tags: string[]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          display_order?: number
+          id?: string
+          image_url?: string | null
+          link?: string | null
+          name: string
+          tags?: string[]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          display_order?: number
+          id?: string
+          image_url?: string | null
+          link?: string | null
+          name?: string
+          tags?: string[]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "user"
+      formation_status: "Completado" | "En progreso" | "Certificado"
+      mindset_category: "Técnica" | "Humana" | "Estratégica"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +351,10 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "user"],
+      formation_status: ["Completado", "En progreso", "Certificado"],
+      mindset_category: ["Técnica", "Humana", "Estratégica"],
+    },
   },
 } as const
