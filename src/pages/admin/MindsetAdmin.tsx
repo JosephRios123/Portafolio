@@ -47,7 +47,7 @@ export default function MindsetAdmin() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-8">
         <div><h1 className="text-3xl font-black">Mentalidad</h1><p className="text-muted-foreground mt-1">{items.length} principio(s)</p></div>
         <button onClick={() => setEditing(empty)} className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-background"
           style={{ background: "linear-gradient(135deg, hsl(217 91% 60%), hsl(187 92% 42%))" }}>
@@ -69,8 +69,8 @@ export default function MindsetAdmin() {
                   <p className="text-sm text-muted-foreground line-clamp-2 mt-1">{p.description}</p>
                 </div>
                 <div className="flex gap-2 shrink-0">
-                  <button onClick={() => setEditing(p)} className="p-2 rounded-lg hover:bg-muted/50 text-accent"><Pencil size={16} /></button>
-                  <button onClick={() => remove(p.id)} className="p-2 rounded-lg hover:bg-destructive/10 text-destructive"><Trash2 size={16} /></button>
+                  <button onClick={() => setEditing(p)} className="touch-target inline-flex items-center justify-center rounded-lg hover:bg-muted/50 text-accent"><Pencil size={16} /></button>
+                  <button onClick={() => remove(p.id)} className="touch-target inline-flex items-center justify-center rounded-lg hover:bg-destructive/10 text-destructive"><Trash2 size={16} /></button>
                 </div>
               </div>
             ))}

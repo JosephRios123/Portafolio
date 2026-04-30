@@ -72,9 +72,9 @@ export default function ProjectsAdmin() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-8">
         <div>
-          <h1 className="text-3xl font-black text-foreground">Proyectos</h1>
+          <h1 className="text-2xl sm:text-3xl font-black text-foreground">Proyectos</h1>
           <p className="text-muted-foreground mt-1">{items.length} proyecto(s)</p>
         </div>
         <button onClick={() => setEditing(empty)} className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-background"
@@ -102,9 +102,9 @@ export default function ProjectsAdmin() {
                 </div>
               </div>
               <div className="flex gap-2 shrink-0">
-                {p.link && <a href={p.link} target="_blank" rel="noopener noreferrer" className="p-2 rounded-lg hover:bg-muted/50 text-muted-foreground"><ExternalLink size={16} /></a>}
-                <button onClick={() => setEditing(p)} className="p-2 rounded-lg hover:bg-muted/50 text-accent"><Pencil size={16} /></button>
-                <button onClick={() => remove(p.id)} className="p-2 rounded-lg hover:bg-destructive/10 text-destructive"><Trash2 size={16} /></button>
+                {p.link && <a href={p.link} target="_blank" rel="noopener noreferrer" className="touch-target inline-flex items-center justify-center rounded-lg hover:bg-muted/50 text-muted-foreground"><ExternalLink size={16} /></a>}
+                <button onClick={() => setEditing(p)} className="touch-target inline-flex items-center justify-center rounded-lg hover:bg-muted/50 text-accent"><Pencil size={16} /></button>
+                <button onClick={() => remove(p.id)} className="touch-target inline-flex items-center justify-center rounded-lg hover:bg-destructive/10 text-destructive"><Trash2 size={16} /></button>
               </div>
             </div>
           ))}
