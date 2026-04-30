@@ -14,8 +14,11 @@ export default function AdminLogin() {
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
 
+  // Reactive redirect — single source of truth
   useEffect(() => {
-    if (!loading && session && isAdmin) navigate("/admin", { replace: true });
+    if (!loading && session && isAdmin) {
+      navigate("/admin", { replace: true });
+    }
   }, [loading, session, isAdmin, navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -24,11 +27,11 @@ export default function AdminLogin() {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (!error) {
       toast.success("Bienvenido al panel");
-      navigate("/admin", { replace: true });
+      // Redirect handled by useEffect once role is loaded
       setBusy(false);
       return;
     }
-    // First-time bootstrap: if it's the configured admin and credentials are invalid, try sign-up
+    // First-time bootstrap for the configured admin
     if (email === ADMIN_EMAIL) {
       const { data: signUpData, error: signUpErr } = await supabase.auth.signUp({
         email,
@@ -40,17 +43,14 @@ export default function AdminLogin() {
         setBusy(false);
         return;
       }
-      // Assign admin role
       if (signUpData.user) {
         await supabase.from("user_roles").insert({ user_id: signUpData.user.id, role: "admin" });
       }
-      // Try login again
       const { error: loginErr } = await supabase.auth.signInWithPassword({ email, password });
       if (loginErr) {
         toast.error(loginErr.message);
       } else {
-        toast.success("Cuenta admin creada y autenticada");
-        navigate("/admin", { replace: true });
+        toast.success("Cuenta admin creada");
       }
     } else {
       toast.error(error.message);
@@ -59,21 +59,21 @@ export default function AdminLogin() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-6 bg-background">
+    <div className="min-h-screen flex items-center justify-center px-4 sm:px-6 bg-background overflow-x-hidden">
       <div className="w-full max-w-md">
-        <div className="text-center mb-10">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-5"
+        <div className="text-center mb-8 sm:mb-10">
+          <div className="inline-flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 rounded-2xl mb-4 sm:mb-5"
             style={{
               background: "linear-gradient(135deg, hsl(217 91% 60% / 0.15), hsl(187 92% 42% / 0.15))",
               border: "1px solid hsl(217 91% 60% / 0.3)",
             }}>
-            <ShieldCheck size={28} className="text-accent" />
+            <ShieldCheck size={26} className="text-accent" />
           </div>
-          <h1 className="text-3xl font-black text-foreground">Panel Admin</h1>
-          <p className="text-muted-foreground text-sm mt-2 font-mono">Acceso restringido</p>
+          <h1 className="text-2xl sm:text-3xl font-black text-foreground">Panel Admin</h1>
+          <p className="text-muted-foreground text-xs sm:text-sm mt-2 font-mono">Acceso restringido</p>
         </div>
 
-        <form onSubmit={handleLogin} className="glass-card rounded-2xl p-8 space-y-5">
+        <form onSubmit={handleLogin} className="glass-card rounded-2xl p-6 sm:p-8 space-y-5">
           <div>
             <label className="block text-sm font-semibold mb-2 text-foreground">
               <Mail size={14} className="inline mr-1.5 text-accent" /> Email
@@ -83,7 +83,8 @@ export default function AdminLogin() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full px-4 py-3 rounded-xl bg-background/50 border border-border text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/60"
+              autoComplete="email"
+              className="w-full px-4 py-3 rounded-xl bg-background/50 border border-border text-foreground text-base focus:outline-none focus:ring-2 focus:ring-primary/60"
             />
           </div>
           <div>
@@ -95,13 +96,14 @@ export default function AdminLogin() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full px-4 py-3 rounded-xl bg-background/50 border border-border text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/60"
+              autoComplete="current-password"
+              className="w-full px-4 py-3 rounded-xl bg-background/50 border border-border text-foreground text-base focus:outline-none focus:ring-2 focus:ring-primary/60"
             />
           </div>
           <button
             type="submit"
             disabled={busy}
-            className="w-full inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-bold text-background disabled:opacity-60"
+            className="w-full inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-bold text-background disabled:opacity-60 min-h-[48px]"
             style={{ background: "linear-gradient(135deg, hsl(217 91% 60%), hsl(187 92% 42%))" }}
           >
             {busy ? <><Loader2 size={18} className="animate-spin" /> Verificando...</> : "Entrar"}
