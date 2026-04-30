@@ -105,23 +105,23 @@ export default function About() {
               {/* Orbiting tech icons */}
               {technologies.map((tech, i) => {
                 const angle = (i * 360) / technologies.length;
-                const radius = 150;
                 const rad = (angle * Math.PI) / 180;
-                const x = Math.cos(rad) * radius;
-                const y = Math.sin(rad) * radius;
+                // Use percentage-based positioning so orbit scales with container
+                const xPct = 50 + Math.cos(rad) * 44; // 44% radius from center
+                const yPct = 50 + Math.sin(rad) * 44;
 
                 return (
                   <div
                     key={tech.name}
-                    className="absolute group cursor-default"
+                    className="absolute group cursor-default -translate-x-1/2 -translate-y-1/2"
                     style={{
-                      left: `calc(50% + ${x}px - 22px)`,
-                      top: `calc(50% + ${y}px - 22px)`,
+                      left: `${xPct}%`,
+                      top: `${yPct}%`,
                       animation: `float ${3 + (i % 3) * 0.5}s ease-in-out ${i * 0.2}s infinite`,
                     }}
                   >
                     <div
-                      className="w-11 h-11 rounded-xl flex items-center justify-center text-lg transition-all duration-300 group-hover:scale-125"
+                      className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center text-base sm:text-lg transition-all duration-300 group-hover:scale-125"
                       style={{
                         background: `${tech.color}38`,
                         border: `1px solid ${tech.color}30`,
