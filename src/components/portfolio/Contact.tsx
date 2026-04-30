@@ -154,7 +154,7 @@ export default function Contact() {
         </div>
 
         <h2
-          className="animate-in-view text-4xl sm:text-5xl md:text-6xl font-black mb-6 leading-tight"
+          className="animate-in-view text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black mb-6 leading-tight"
           style={{ transitionDelay: "0.1s" }}
         >
           ¿Listo para construir{" "}
@@ -162,7 +162,7 @@ export default function Contact() {
         </h2>
 
         <p
-          className="animate-in-view text-muted-foreground text-lg mb-16 max-w-2xl"
+          className="animate-in-view text-muted-foreground text-base sm:text-lg mb-10 sm:mb-16 max-w-2xl"
           style={{ transitionDelay: "0.15s" }}
         >
           Estoy disponible para roles de backend developer, consultoría técnica o proyectos desafiantes. Hablemos.
