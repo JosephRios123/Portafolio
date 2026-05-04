@@ -37,15 +37,16 @@ export default function ProjectsAdmin() {
 
   const save = async () => {
     if (!editing) return;
-    const result = projectSchema.safeParse({
-      name: editing.name,
-      description: editing.description,
+    const candidate = {
+      name: editing.name.trim(),
+      description: editing.description.trim(),
       tags: editing.tags,
-      link: editing.link,
-      image_url: editing.image_url,
-      country: editing.country || null,
+      link: editing.link.trim(),
+      image_url: editing.image_url.trim(),
+      country: editing.country.trim(),
       display_order: editing.display_order,
-    });
+    };
+    const result = projectSchema.safeParse(candidate);
     if (!result.success) {
       setErrors(flattenZodErrors(result));
       toast.error("Revisa los campos marcados");
@@ -53,10 +54,18 @@ export default function ProjectsAdmin() {
     }
     setErrors({});
     setSaving(true);
-    const payload = result.data;
+    const payload = {
+      name: candidate.name,
+      description: candidate.description,
+      tags: candidate.tags,
+      link: candidate.link || null,
+      image_url: candidate.image_url || null,
+      country: candidate.country || null,
+      display_order: candidate.display_order,
+    };
     const { error } = editing.id
       ? await supabase.from("projects").update(payload).eq("id", editing.id)
-      : await supabase.from("projects").insert([payload]);
+      : await supabase.from("projects").insert(payload);
     if (error) toast.error(error.message);
     else {
       toast.success("Guardado");

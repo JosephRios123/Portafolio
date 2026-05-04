@@ -54,15 +54,16 @@ export default function ExperienceAdmin() {
 
   const save = async () => {
     if (!editing) return;
-    const result = experienceSchema.safeParse({
-      role: editing.role,
-      company: editing.company,
-      start_date: editing.start_date,
-      end_date: editing.is_current ? null : editing.end_date || null,
+    const candidate = {
+      role: editing.role.trim(),
+      company: editing.company.trim(),
+      start_date: editing.start_date.trim(),
+      end_date: (editing.end_date ?? "").trim(),
       is_current: editing.is_current,
       color: editing.color,
       display_order: editing.display_order,
-    });
+    };
+    const result = experienceSchema.safeParse(candidate);
     if (!result.success) {
       setErrors(flattenZodErrors(result));
       toast.error("Revisa los campos");
@@ -70,10 +71,18 @@ export default function ExperienceAdmin() {
     }
     setErrors({});
     setSaving(true);
-    const payload = result.data;
+    const payload = {
+      role: candidate.role,
+      company: candidate.company,
+      start_date: candidate.start_date,
+      end_date: candidate.is_current ? null : candidate.end_date || null,
+      is_current: candidate.is_current,
+      color: candidate.color,
+      display_order: candidate.display_order,
+    };
     const r = editing.id
       ? await supabase.from("experiences").update(payload).eq("id", editing.id).select().single()
-      : await supabase.from("experiences").insert([payload]).select().single();
+      : await supabase.from("experiences").insert(payload).select().single();
     if (r.error) {
       toast.error(r.error.message);
       setSaving(false);

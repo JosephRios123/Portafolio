@@ -51,12 +51,13 @@ export default function MindsetAdmin() {
 
   const save = async () => {
     if (!editing) return;
-    const result = mindsetSchema.safeParse({
-      phrase: editing.phrase,
-      description: editing.description,
+    const candidate = {
+      phrase: editing.phrase.trim(),
+      description: editing.description.trim(),
       category: editing.category,
       display_order: editing.display_order,
-    });
+    };
+    const result = mindsetSchema.safeParse(candidate);
     if (!result.success) {
       setErrors(flattenZodErrors(result));
       toast.error("Revisa los campos");
@@ -65,13 +66,13 @@ export default function MindsetAdmin() {
     setErrors({});
     setSaving(true);
     const payload = {
-      ...result.data,
+      ...candidate,
       icon_emoji: editing.icon_emoji,
       icon_image_url: editing.icon_image_url,
     };
     const { error } = editing.id
       ? await supabase.from("mindset_principles").update(payload).eq("id", editing.id)
-      : await supabase.from("mindset_principles").insert([payload]);
+      : await supabase.from("mindset_principles").insert(payload);
     if (error) toast.error(error.message);
     else {
       toast.success("Guardado");

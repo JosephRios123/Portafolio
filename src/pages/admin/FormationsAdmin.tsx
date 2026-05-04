@@ -55,15 +55,16 @@ export default function FormationsAdmin() {
 
   const save = async () => {
     if (!editing) return;
-    const result = formationSchema.safeParse({
-      course: editing.course,
-      institution: editing.institution,
-      city: editing.city || null,
-      country: editing.country || null,
+    const candidate = {
+      course: editing.course.trim(),
+      institution: editing.institution.trim(),
+      city: (editing.city ?? "").trim(),
+      country: (editing.country ?? "").trim(),
       status: editing.status,
-      obtained_date: editing.obtained_date || null,
+      obtained_date: (editing.obtained_date ?? "").trim(),
       display_order: editing.display_order,
-    });
+    };
+    const result = formationSchema.safeParse(candidate);
     if (!result.success) {
       setErrors(flattenZodErrors(result));
       toast.error("Revisa los campos");
@@ -72,7 +73,13 @@ export default function FormationsAdmin() {
     setErrors({});
     setSaving(true);
     const payload = {
-      ...result.data,
+      course: candidate.course,
+      institution: candidate.institution,
+      city: candidate.city || null,
+      country: candidate.country || null,
+      status: candidate.status,
+      obtained_date: candidate.obtained_date || null,
+      display_order: candidate.display_order,
       icon_emoji: editing.icon_emoji,
       icon_image_url: editing.icon_image_url,
       certificate_url: editing.certificate_url,
@@ -80,7 +87,7 @@ export default function FormationsAdmin() {
     };
     const { error } = editing.id
       ? await supabase.from("formations").update(payload).eq("id", editing.id)
-      : await supabase.from("formations").insert([payload]);
+      : await supabase.from("formations").insert(payload);
     if (error) toast.error(error.message);
     else {
       toast.success("Guardado");
