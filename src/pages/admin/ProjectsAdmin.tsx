@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2, Loader2, X, Upload, ExternalLink } from "lucide-react";
-import { useProjects } from "@/hooks/usePublicData";
 import { projectSchema, validateImageFile, flattenZodErrors, type ZodResultErrors } from "@/lib/validation";
 import ConfirmDelete from "@/components/admin/ConfirmDelete";
+import type { PublicProject } from "@/hooks/usePublicData";
 
 type Editing = {
   id?: string;
@@ -20,13 +20,23 @@ type Editing = {
 const empty: Editing = { name: "", tags: [], description: "", link: "", image_url: "", country: "", display_order: 0 };
 
 export default function ProjectsAdmin() {
-  const { data: items, loading } = useProjects();
-  const [version, setVersion] = useState(0);
-  const reload = () => setVersion((v) => v + 1);
+  const [list, setList] = useState<PublicProject[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const { data: items2, loading: loading2 } = useProjects();
-  const list = version > 0 ? items2 : items;
-  const isLoading = version > 0 ? loading2 : loading;
+  const reload = async () => {
+    setIsLoading(true);
+    const { data, error } = await supabase
+      .from("projects")
+      .select("*")
+      .order("display_order")
+      .order("created_at", { ascending: false });
+    if (error) toast.error(error.message);
+    else setList((data ?? []) as PublicProject[]);
+    setIsLoading(false);
+  };
+  useEffect(() => {
+    reload();
+  }, []);
 
   const [editing, setEditing] = useState<Editing | null>(null);
   const [tagInput, setTagInput] = useState("");
