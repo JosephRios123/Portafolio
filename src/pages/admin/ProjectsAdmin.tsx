@@ -54,10 +54,9 @@ export default function ProjectsAdmin() {
     setErrors({});
     setSaving(true);
     const payload = result.data;
-    const op = editing.id
-      ? supabase.from("projects").update(payload).eq("id", editing.id)
-      : supabase.from("projects").insert(payload);
-    const { error } = await op;
+    const { error } = editing.id
+      ? await supabase.from("projects").update(payload).eq("id", editing.id)
+      : await supabase.from("projects").insert([payload]);
     if (error) toast.error(error.message);
     else {
       toast.success("Guardado");

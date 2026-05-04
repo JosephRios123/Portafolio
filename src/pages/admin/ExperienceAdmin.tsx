@@ -73,7 +73,7 @@ export default function ExperienceAdmin() {
     const payload = result.data;
     const r = editing.id
       ? await supabase.from("experiences").update(payload).eq("id", editing.id).select().single()
-      : await supabase.from("experiences").insert(payload).select().single();
+      : await supabase.from("experiences").insert([payload]).select().single();
     if (r.error) {
       toast.error(r.error.message);
       setSaving(false);

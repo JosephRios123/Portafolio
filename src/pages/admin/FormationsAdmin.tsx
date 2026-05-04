@@ -80,7 +80,7 @@ export default function FormationsAdmin() {
     };
     const { error } = editing.id
       ? await supabase.from("formations").update(payload).eq("id", editing.id)
-      : await supabase.from("formations").insert(payload);
+      : await supabase.from("formations").insert([payload]);
     if (error) toast.error(error.message);
     else {
       toast.success("Guardado");

@@ -71,7 +71,7 @@ export default function MindsetAdmin() {
     };
     const { error } = editing.id
       ? await supabase.from("mindset_principles").update(payload).eq("id", editing.id)
-      : await supabase.from("mindset_principles").insert(payload);
+      : await supabase.from("mindset_principles").insert([payload]);
     if (error) toast.error(error.message);
     else {
       toast.success("Guardado");
