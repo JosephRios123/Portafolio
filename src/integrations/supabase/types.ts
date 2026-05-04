@@ -87,10 +87,15 @@ export type Database = {
       }
       formations: {
         Row: {
+          certificate_mime: string | null
+          certificate_url: string | null
           city: string | null
+          country: string | null
           course: string
           created_at: string
           display_order: number
+          icon_emoji: string | null
+          icon_image_url: string | null
           id: string
           institution: string
           obtained_date: string | null
@@ -98,10 +103,15 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          certificate_mime?: string | null
+          certificate_url?: string | null
           city?: string | null
+          country?: string | null
           course: string
           created_at?: string
           display_order?: number
+          icon_emoji?: string | null
+          icon_image_url?: string | null
           id?: string
           institution: string
           obtained_date?: string | null
@@ -109,10 +119,15 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          certificate_mime?: string | null
+          certificate_url?: string | null
           city?: string | null
+          country?: string | null
           course?: string
           created_at?: string
           display_order?: number
+          icon_emoji?: string | null
+          icon_image_url?: string | null
           id?: string
           institution?: string
           obtained_date?: string | null
@@ -127,6 +142,8 @@ export type Database = {
           created_at: string
           description: string
           display_order: number
+          icon_emoji: string | null
+          icon_image_url: string | null
           id: string
           phrase: string
           updated_at: string
@@ -136,6 +153,8 @@ export type Database = {
           created_at?: string
           description: string
           display_order?: number
+          icon_emoji?: string | null
+          icon_image_url?: string | null
           id?: string
           phrase: string
           updated_at?: string
@@ -145,6 +164,8 @@ export type Database = {
           created_at?: string
           description?: string
           display_order?: number
+          icon_emoji?: string | null
+          icon_image_url?: string | null
           id?: string
           phrase?: string
           updated_at?: string
@@ -153,9 +174,12 @@ export type Database = {
       }
       projects: {
         Row: {
+          country: string | null
           created_at: string
           description: string
           display_order: number
+          icon_emoji: string | null
+          icon_image_url: string | null
           id: string
           image_url: string | null
           link: string | null
@@ -164,9 +188,12 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          country?: string | null
           created_at?: string
           description: string
           display_order?: number
+          icon_emoji?: string | null
+          icon_image_url?: string | null
           id?: string
           image_url?: string | null
           link?: string | null
@@ -175,9 +202,12 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          country?: string | null
           created_at?: string
           description?: string
           display_order?: number
+          icon_emoji?: string | null
+          icon_image_url?: string | null
           id?: string
           image_url?: string | null
           link?: string | null

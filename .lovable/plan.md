@@ -1,125 +1,133 @@
-# Plan: Admin Panel Funcional + Responsive Integral
 
-Dos correcciones críticas, ejecutadas con arquitectura limpia y respetando la identidad visual existente (dark + azul/cyan + glassmorphism).
+# Optimización integral del portafolio
 
----
+## 1. Limpieza total de datos
 
-## 🔴 Parte 1 — Reparar y elevar el Panel Admin
+- Borrar el proyecto `SneakVault` de la tabla `projects`.
+- Las tablas `experiences`, `experience_bullets`, `formations`, `mindset_principles` ya están vacías.
+- Eliminar todos los arrays hardcoded de `Education.tsx`, `Experience.tsx`, `Mindset.tsx`. Las secciones públicas mostrarán **estados vacíos elegantes** ("Próximamente — contenido en construcción") cuando no haya datos en la DB.
+- `Skills.tsx` se mantiene hardcoded (no había tabla y tú elegiste no crearla).
 
-### 1.1 Diagnóstico del bug de redirección
+## 2. Cambios de esquema (migración)
 
-El login muestra el toast pero no entra al panel. Causa raíz:
+```text
+projects
+  + country         text         (junto con datos existentes)
+  + icon_emoji      text         (icono del registro)
+  + icon_image_url  text         (alternativa a emoji)
+  alter description: límite 200 validado en cliente
 
-- `AdminLogin.tsx` llama `signInWithPassword` y luego `navigate("/admin")` **antes** de que el listener `onAuthStateChange` de `useAdminAuth` haya verificado el rol via `setTimeout(checkRole, 0)`.
-- Al llegar a `/admin`, `AdminLayout` ve `isAdmin = false` (todavía cargando) y como `loading` ya es `false` (la sesión inicial sí se resolvió), redirige de vuelta a `/admin/login`. Loop silencioso.
+formations
+  + country              text
+  + icon_emoji           text
+  + icon_image_url       text
+  + certificate_url      text     (PDF o imagen subida)
+  + certificate_mime     text     ('application/pdf' | 'image/...')
 
-**Fix**: introducir un estado `roleLoading` separado en `useAdminAuth`. Mientras haya `session` pero el rol no se haya resuelto, `loading=true`. Así `AdminLayout` espera al spinner y luego entra correctamente. Además, en `AdminLogin` no navegamos manualmente: el `useEffect` que ya observa `session && isAdmin` hace la redirección de forma reactiva (única fuente de verdad).
+mindset_principles
+  + icon_emoji           text
+  + icon_image_url       text
+```
 
-### 1.2 Nuevo Dashboard admin (reemplaza `AdminIndex.tsx`)
+Nuevo bucket público de Storage: `certificates` (PDF/JPG/PNG, <2MB) con políticas RLS:
+- SELECT público
+- INSERT/UPDATE/DELETE solo admin (`has_role(auth.uid(),'admin')`)
 
-Layout tipo "startup Serie B", usando los componentes y tokens ya existentes (`glass-card`, `gradient-bg`, `text-accent`, etc.):
+Mismas políticas se añadirán al bucket `project-previews` para uniformidad.
 
-- **Header sticky** dentro del `<main>` del `AdminLayout`: avatar circular con iniciales del email, nombre, badge "Admin", botón "Cerrar sesión" (solo en mobile, en desktop sigue en sidebar).
-- **Fila de KPIs (4 tarjetas)**: cuentas reales obtenidas con `supabase.from('<tabla>').select('*', { count: 'exact', head: true })`:
-  - Proyectos publicados
-  - Experiencias registradas
-  - Principios de mentalidad
-  - Formaciones
-  Cada KPI: ícono lucide, número grande animado (count-up con `requestAnimationFrame`, sin librerías), delta sutil "+ actualizado hace X".
-- **Gráfica de actividad (sparkline SVG inline)**: agregamos los `created_at` de las 4 tablas por día de los últimos 14 días → área chart minimalista en SVG puro (sin recharts para no añadir peso). Tooltip on hover.
-- **Tabla de actividad reciente**: union de las 4 tablas ordenadas por `updated_at desc limit 8`, con columnas: Tipo (chip color por entidad), Título, Fecha relativa, Acción (botón "Editar" → ruta CRUD correspondiente). En mobile se transforma en lista de cards apiladas.
-- **Atajos rápidos**: 4 cards lineales con CTA "Crear nuevo" → llevan a la ruta CRUD.
-- Transición de entrada: `animate-fade-in` escalonado (`animation-delay` por bloque).
+## 3. CRUD endurecido (validaciones estrictas)
 
-### 1.3 Sidebar `AdminLayout` — colapsable y responsive
+Crear `src/lib/validation.ts` con esquemas **zod** reutilizables:
 
-- Desktop (`md+`): sidebar fijo 256px (como hoy).
-- Tablet (`sm`–`md`): sidebar colapsado a 64px solo iconos, con tooltip al hover.
-- Mobile (`<sm`): sidebar oculto, drawer off-canvas accionado por botón hamburguesa en el header del main. Click en backdrop o link cierra.
-- Estado controlado con `useState` local + `useIsMobile` (ya existe el hook).
-- Header del main contiene: hamburguesa (mobile), título de la subruta (derivado del pathname), avatar+menu.
+- `projectSchema`: name (1-80), description (1-200), tags (1-10, cada uno ≤24), link (URL válida o vacío), image_url (URL).
+- `formationSchema`: course/institution obligatorios, ciudad/país, status enum, fecha (YYYY o "Mes YYYY").
+- `mindsetSchema`: phrase (1-120), description (1-400), categoría enum.
+- `experienceSchema`: role/company/start_date obligatorios, end_date requerido si `is_current=false`.
+- `iconSchema`: exactamente uno de emoji o imagen, no ambos.
+- `imageFileSchema`: `type ∈ {jpeg,png,webp}`, `size ≤ 2MB`.
+- `certificateFileSchema`: `type ∈ {pdf,jpeg,png}`, `size ≤ 2MB`.
 
-### 1.4 Rutas protegidas — `<ProtectedRoute>`
+Reemplazar las validaciones manuales actuales en los 4 admins por `schema.safeParse()` con mensajes inline (no solo toast).
 
-Extraer el guard de `AdminLayout` a un componente reusable `ProtectedRoute` que:
-- Espera `loading` (incluye `roleLoading`).
-- Si no hay `session` o `!isAdmin` → `<Navigate to="/admin/login" replace />`.
-- Si OK → `<Outlet />`.
+### Componente `IconPicker` (`src/components/admin/IconPicker.tsx`)
 
-Se envuelve `<Route path="/admin">` con él en `App.tsx`. `AdminLayout` queda solo presentacional.
+- Tabs: "Emoji" / "Imagen".
+- Tab Emoji: grid curado de ~80 emojis frecuentes (graduación, código, herramientas, banderas) + input manual.
+- Tab Imagen: subida a `certificates` o bucket dedicado `icons` con preview circular 64×64 y botón "Quitar".
+- Devuelve `{ icon_emoji, icon_image_url }` mutuamente excluyentes. Se usa en `FormationsAdmin` y `MindsetAdmin`.
 
-### 1.5 Logout limpio
+### Componente `CertificateUpload` (`src/components/admin/CertificateUpload.tsx`)
 
-`signOut` ya llama `supabase.auth.signOut()`. Asegurar que tras eso: limpiamos estado local (`setSession(null)`, `setIsAdmin(false)` lo hace el listener) y navegamos a `/` (no a `/admin/login`) para sentir "salida real".
+- Acepta PDF/JPG/PNG ≤2MB.
+- Preview inline: imagen → thumbnail; PDF → tarjeta con icono + nombre + "Abrir".
+- Estados: idle / uploading / success / error con feedback visual.
 
----
+## 4. Secciones públicas conectadas a Supabase
 
-## 🟡 Parte 2 — Responsive Integral (320px → 1920px)
+Crear hook genérico `src/hooks/usePublicData.ts`:
 
-Auditoría sección por sección. Reglas globales aplicadas:
+```text
+useProjects()    → projects ordenados
+useExperiences() → experiences + bullets (join manual)
+useFormations()  → formations
+useMindset()     → mindset_principles
+```
 
-- Tipografía fluida con `clamp()` en `tailwind.config.ts` o usando escalas `text-base sm:text-lg md:text-xl` ya presentes — verificar que ninguna headline use `text-5xl` sin variante sm menor.
-- `overflow-x: hidden` en `<main>` para garantizar cero scroll horizontal.
-- Touch targets ≥ 44×44 px (revisar botones ícono del Navbar mobile, chips de skills, controles de admin).
-- Padding lateral mínimo `px-4` en mobile, `px-6` sm, `px-8` md+.
+Cada hook expone `{ data, loading, error }`. Loading muestra **skeletons** (componente `ui/skeleton` ya existe). Estado vacío muestra el card "Próximamente" estilizado.
 
-### Cambios concretos por archivo
+Refactor de:
 
-| Archivo | Ajustes |
-|---|---|
-| `src/index.css` | Añadir `html, body { overflow-x: hidden; }` + utility `.touch-target { min-width: 44px; min-height: 44px; }` |
-| `Navbar.tsx` | Hamburguesa: aumentar a `w-11 h-11` con `flex items-center justify-center`. Animar el menu mobile con transición (no aparición seca). Bloquear scroll del body cuando `menuOpen`. Cerrar con tecla `Esc`. |
-| `Hero.tsx` | Headline `text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl` (hoy arranca en 5xl, demasiado para 320px). CTAs en mobile: stack vertical full-width `w-full sm:w-auto`. Reducir cantidad de partículas en mobile (`useIsMobile` → 8 en vez de 20) por performance. |
-| `Projects.tsx` | Grid `grid-cols-1 md:grid-cols-2 lg:grid-cols-3`. Cards con `min-w-0` para evitar overflow de tags. Tags con `flex-wrap`. |
-| `Experience.tsx` | Si usa timeline con línea izquierda, en mobile cambiar a línea simple sin offset, padding-left reducido. |
-| `Mindset.tsx` | Asegurar grid responsive y que las tarjetas no fuercen ancho mínimo. |
-| `About.tsx` | Las órbitas del stack tecnológico: en mobile (`<sm`) reducir radio o cambiar a grid de chips estático para que no se salga de la pantalla. Tooltip `whitespace-nowrap` (línea 140) → en mobile mejor wrap. |
-| `Education.tsx` | Accordions full-width, padding interno reducido en mobile. |
-| `Skills.tsx` | Grid `grid-cols-2 sm:grid-cols-3 md:grid-cols-4`. |
-| `Contact.tsx` | Form: inputs `w-full`, labels arriba, botón submit full-width en mobile. Espaciado `space-y-4 sm:space-y-5`. |
-| `AdminLayout.tsx` | Drawer mobile descrito en 1.3. |
-| `AdminLogin.tsx` | Card `max-w-md` ya OK; padding `p-6 sm:p-8`. Inputs `text-base` (evita zoom de iOS al enfocar). |
-| Páginas CRUD admin | Tablas envueltas en `<div class="overflow-x-auto">`. Formularios: `grid-cols-1 sm:grid-cols-2`. Botones de acción min 44px. |
+- **`Projects.tsx`**: si `data.length === 0` → mantiene la card actual de "Próximamente". Si hay datos → grid responsive (`1 / sm:2 / lg:3`) con tarjetas: imagen lazy (`loading="lazy" decoding="async"`), título, descripción 2 líneas, tags como badges, botón "Ver proyecto" si hay link. Hover lift suave.
+- **`Experience.tsx`**: timeline alimentado por DB con bullets. Empty state propio.
+- **`Education.tsx`**: accordions alimentados por DB; si hay `certificate_url` → botón "Ver certificado" abre **modal** (Dialog shadcn) con `<embed>` para PDF o `<img>` para imagen. Icono usa `icon_image_url` (en círculo) o `icon_emoji`.
+- **`Mindset.tsx`**: tarjetas alimentadas por DB. Categoría → color. Icono igual que Education.
 
-### Breakpoints de prueba mental
-- **320 (iPhone SE)**: Hero legible, CTAs apilados, navbar hamburguesa, sin overflow.
-- **390 (actual del usuario)**: Mismo, ya verificado en preview.
-- **768 (tablet)**: Sidebar admin colapsado iconos, grids 2 cols.
-- **1024+**: Layout completo desktop.
+Cuando guardas/eliminas en el admin, las secciones públicas se actualizan al recargar (sin realtime; suficiente para portafolio).
 
----
+## 5. Responsive / UX / Performance
 
-## 📦 Resumen de archivos tocados
+### Responsive (mobile <768, tablet 768-1024, desktop >1024)
+- Auditar y unificar paddings: `px-4 sm:px-6 lg:px-8`, `py-16 sm:py-20 lg:py-28`.
+- Grids canónicos: cards `grid gap-5 sm:grid-cols-2 lg:grid-cols-3`.
+- Tipografía fluida estandarizada en h2: `text-3xl sm:text-4xl lg:text-5xl`.
+- Hero CTAs: en mobile stack vertical full-width, en sm+ fila centrada (corregir 3 botones que hoy se aprietan).
+- Eliminar `min-w` que generen overflow horizontal lateral.
 
-**Nuevos**
-- `src/components/admin/ProtectedRoute.tsx`
-- `src/components/admin/AdminHeader.tsx`
-- `src/components/admin/KpiCard.tsx`
-- `src/components/admin/ActivitySparkline.tsx`
-- `src/components/admin/RecentActivity.tsx`
+### UX/UI
+- Skeletons mientras carga DB (no spinners en sección pública).
+- Hover/focus visibles en todas las cards (`focus-visible:ring-2 ring-accent`).
+- Transiciones uniformes 200-300ms; quitar las que excedan 500ms en hover.
+- Toasts `sonner` consistentes para todas las acciones admin (success/error).
+- Confirmación de borrado con `AlertDialog` shadcn en lugar de `confirm()` nativo en los 4 admins.
 
-**Modificados**
-- `src/hooks/useAdminAuth.tsx` (estado `roleLoading`)
-- `src/App.tsx` (ProtectedRoute wrapping)
-- `src/pages/admin/AdminLogin.tsx` (quitar navigate manual)
-- `src/pages/admin/AdminLayout.tsx` (sidebar colapsable + drawer mobile + header)
-- `src/pages/admin/AdminIndex.tsx` (dashboard nuevo con KPIs/sparkline/actividad)
-- Páginas CRUD: ProjectsAdmin, ExperienceAdmin, MindsetAdmin, FormationsAdmin (responsive)
-- `src/index.css` (overflow-x hidden, touch-target)
-- `src/components/portfolio/*` (responsive fixes en cada sección)
+### Performance
+- `loading="lazy"` y `decoding="async"` en todas las `<img>` de proyectos/iconos/certificados.
+- `React.lazy` + `Suspense` para las páginas admin (`/admin/*`) — no se cargan en el bundle público.
+- Memoización de listas grandes con `useMemo` cuando ordenamos.
+- Validar tamaño de imagen antes de subir (rechaza >2MB en cliente, ahorra round-trip).
 
-**Sin tocar**: Supabase schema (ya está bien), `generateCV.ts`, `Contact.tsx` lógica de email (ya quedó del módulo anterior).
+## 6. Tareas concretas
 
----
+```text
+Migración SQL          → 1 migración (drop SneakVault + alter tables + bucket certificates + RLS)
+src/lib/validation.ts  → nuevo (zod schemas)
+src/hooks/usePublicData.ts → nuevo
+src/components/admin/IconPicker.tsx       → nuevo
+src/components/admin/CertificateUpload.tsx → nuevo
+src/components/admin/ConfirmDelete.tsx    → nuevo (AlertDialog wrapper)
+src/components/portfolio/CertificateModal.tsx → nuevo
+src/pages/admin/ProjectsAdmin.tsx     → zod + AlertDialog + lazy
+src/pages/admin/ExperienceAdmin.tsx   → zod + AlertDialog
+src/pages/admin/FormationsAdmin.tsx   → zod + IconPicker + CertificateUpload + país
+src/pages/admin/MindsetAdmin.tsx      → zod + IconPicker
+src/components/portfolio/Projects.tsx   → conectar a useProjects()
+src/components/portfolio/Experience.tsx → conectar a useExperiences()
+src/components/portfolio/Education.tsx  → conectar a useFormations() + modal cert
+src/components/portfolio/Mindset.tsx    → conectar a useMindset()
+src/App.tsx → React.lazy en rutas /admin
+```
 
-## ✅ Criterios de aceptación
-
-1. Login en `/admin/login` con `cresposfelices@gmail.com` → entra al dashboard sin loops.
-2. Refrescar en `/admin` mantiene sesión.
-3. Acceso a `/admin` sin sesión → redirige a `/admin/login`.
-4. Logout → limpia estado y vuelve a `/`.
-5. En 320px no hay scroll horizontal en ninguna sección ni en admin.
-6. Hamburguesa abre/cierra suavemente y bloquea scroll del body.
-7. Sidebar admin se transforma en drawer en mobile.
-8. Todos los botones táctiles ≥ 44px.
-9. Dashboard muestra conteos reales desde Supabase y actividad reciente.
+## Qué NO se toca
+- Hero, Navbar, About (orbital), Skills, Contact: ya están finos tras la corrección anterior.
+- Auth flow, AdminLayout, Dashboard: funcionan correctamente.
+- Estética, paleta, glassmorphism, animaciones: se preservan al 100%.
