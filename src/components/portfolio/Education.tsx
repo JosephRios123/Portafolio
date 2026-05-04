@@ -1,76 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import { GraduationCap, Calendar, ChevronDown } from "lucide-react";
+import { GraduationCap, Calendar, ChevronDown, FileText } from "lucide-react";
+import { useFormations, type PublicFormation } from "@/hooks/usePublicData";
+import { Skeleton } from "@/components/ui/skeleton";
+import CertificateModal from "./CertificateModal";
 
-const formations = [
-  {
-    title: "Tecnólogo en Análisis y Desarrollo de Software",
-    institution: "SENA",
-    institutionFull: "Servicio Nacional de Aprendizaje",
-    location: "Medellín, Colombia",
-    period: "Abr 2022 – Jul 2024",
-    emoji: "🏫",
-    color: "hsl(217 91% 60%)",
-    status: "Graduado con éxito",
-    competencies: [
-      "Metodologías ágiles (SCRUM)",
-      "Ciclo completo de desarrollo de software",
-      "Testing y aseguramiento de calidad",
-      "Programación orientada a objetos",
-      "Enfoque en experiencia de usuario",
-      "Análisis y diseño de sistemas",
-    ],
-  },
-  {
-    title: "Introducción a la IA Generativa",
-    institution: "Coursera",
-    institutionFull: "Google Cloud - Coursera",
-    location: "Virtual",
-    period: "2025",
-    emoji: "🤖",
-    color: "hsl(187 92% 42%)",
-    status: "Completado",
-    competencies: [
-      "Comprensión de modelos generativos y su aplicación práctica",
-      "Uso estratégico de herramientas basadas en IA",
-      "Pensamiento crítico aplicado a automatización inteligente",
-      "Integración de IA como herramienta de productividad en desarrollo",
-    ],
-  },
-  {
-    title: "Programación en JAVA",
-    institution: "Politécnico de Colombia",
-    institutionFull: "Politécnico de Colombia",
-    location: "Virtual",
-    period: "2025",
-    emoji: "☕",
-    color: "hsl(27 100% 55%)",
-    status: "Completado",
-    competencies: [
-      "Programación orientada a objetos avanzada",
-      "Manejo de excepciones y arquitectura limpia",
-      "Diseño modular y reutilizable",
-      "Desarrollo de lógica robusta y estructurada",
-    ],
-  },
-  {
-    title: "Operador Medios Tecnológicos",
-    institution: "AVIPS LTDA",
-    institutionFull: "Academia de Vigilancia y Seguridad Privada",
-    location: "Medellín, Colombia",
-    period: "2026",
-    emoji: "🖥️",
-    color: "hsl(262 83% 65%)",
-    status: "Completado",
-    competencies: [
-      "Gestión de sistemas tecnológicos en entornos operativos",
-      "Monitoreo y control de procesos digitales",
-      "Responsabilidad en manejo de información",
-      "Atención al detalle y reacción ante incidentes técnicos",
-    ],
-  },
-];
-
-function useScrollAnimation(ref: React.RefObject<HTMLElement>) {
+function useScrollAnimation(ref: React.RefObject<HTMLElement>, deps: unknown[] = []) {
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => entries.forEach((e) => e.isIntersecting && e.target.classList.add("visible")),
@@ -78,113 +12,183 @@ function useScrollAnimation(ref: React.RefObject<HTMLElement>) {
     );
     ref.current?.querySelectorAll(".animate-in-view").forEach((el) => observer.observe(el));
     return () => observer.disconnect();
-  }, [ref]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, deps);
 }
+
+const statusColor: Record<PublicFormation["status"], string> = {
+  Completado: "hsl(142 70% 45%)",
+  "En progreso": "hsl(45 100% 55%)",
+  Certificado: "hsl(217 91% 60%)",
+};
 
 export default function Education() {
   const sectionRef = useRef<HTMLElement>(null);
-  useScrollAnimation(sectionRef);
-  const [openIndex, setOpenIndex] = useState<number | null>(null);
-
-  const toggle = (i: number) => setOpenIndex(openIndex === i ? null : i);
+  const { data, loading } = useFormations();
+  useScrollAnimation(sectionRef, [loading, data.length]);
+  const [openId, setOpenId] = useState<string | null>(null);
+  const [cert, setCert] = useState<{ url: string; mime: string | null; title: string } | null>(null);
 
   return (
-    <section id="education" ref={sectionRef} className="py-20 sm:py-28 px-4 sm:px-6 section-divider">
+    <section
+      id="education"
+      ref={sectionRef}
+      className="py-16 sm:py-20 lg:py-28 px-4 sm:px-6 lg:px-8 section-divider"
+    >
       <div className="max-w-5xl mx-auto">
         <div className="animate-in-view flex items-center gap-3 mb-4">
           <span className="w-8 h-px gradient-bg" />
           <span className="text-accent text-sm font-mono font-bold tracking-widest uppercase">Formación</span>
         </div>
 
-        <h2 className="animate-in-view text-3xl sm:text-4xl md:text-5xl font-black mb-10 sm:mb-16" style={{ transitionDelay: "0.1s" }}>
+        <h2
+          className="animate-in-view text-3xl sm:text-4xl lg:text-5xl font-black mb-10 sm:mb-16"
+          style={{ transitionDelay: "0.1s" }}
+        >
           Base <span className="gradient-text">Académica</span>
         </h2>
 
-        <div className="flex flex-col gap-5">
-          {formations.map((f, i) => (
-            <div
-              key={f.title}
-              className="animate-in-view glass-card-hover rounded-2xl overflow-hidden cursor-pointer"
-              style={{ transitionDelay: `${0.15 + i * 0.08}s` }}
-              onClick={() => toggle(i)}
-            >
-              <div className="p-7 sm:p-8">
-                <div className="flex items-start gap-5">
-                  <div
-                    className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl shrink-0"
-                    style={{
-                      background: `${f.color}15`,
-                      border: `1px solid ${f.color}30`,
-                    }}
+        {loading ? (
+          <div className="space-y-5">
+            <Skeleton className="h-28 rounded-2xl" />
+            <Skeleton className="h-28 rounded-2xl" />
+            <Skeleton className="h-28 rounded-2xl" />
+          </div>
+        ) : data.length === 0 ? (
+          <EmptyState />
+        ) : (
+          <div className="flex flex-col gap-5">
+            {data.map((f, i) => {
+              const open = openId === f.id;
+              const color = statusColor[f.status];
+              return (
+                <div
+                  key={f.id}
+                  className="animate-in-view glass-card-hover rounded-2xl overflow-hidden"
+                  style={{ transitionDelay: `${0.1 + i * 0.06}s` }}
+                >
+                  <button
+                    type="button"
+                    onClick={() => setOpenId(open ? null : f.id)}
+                    className="w-full text-left p-6 sm:p-8 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 rounded-2xl"
                   >
-                    {f.emoji}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <h3 className="text-lg font-black text-foreground">{f.title}</h3>
-                        <p className="font-semibold mt-1" style={{ color: f.color }}>{f.institution}</p>
-                        <p className="text-muted-foreground text-sm">{f.location}</p>
-                      </div>
-                      <div className="flex items-center gap-3 shrink-0">
-                        <div className="hidden sm:flex items-center gap-1.5 text-muted-foreground text-sm font-mono">
-                          <Calendar size={13} className="text-accent" />
-                          {f.period}
-                        </div>
-                        <ChevronDown
-                          size={20}
-                          className="text-muted-foreground transition-transform duration-300"
-                          style={{ transform: openIndex === i ? "rotate(180deg)" : "rotate(0deg)" }}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-3 mt-3">
-                      <span
-                        className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold"
-                        style={{
-                          background: `${f.color}15`,
-                          color: f.color,
-                          border: `1px solid ${f.color}30`,
-                        }}
+                    <div className="flex items-start gap-4 sm:gap-5">
+                      <div
+                        className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center text-2xl shrink-0 overflow-hidden"
+                        style={{ background: `${color}15`, border: `1px solid ${color}30` }}
                       >
-                        <GraduationCap size={13} />
-                        {f.status}
-                      </span>
-                      <span className="sm:hidden text-xs text-muted-foreground font-mono">{f.period}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
+                        {f.icon_image_url ? (
+                          <img src={f.icon_image_url} alt="" loading="lazy" className="w-full h-full object-cover" />
+                        ) : (
+                          f.icon_emoji || "🎓"
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0">
+                            <h3 className="text-base sm:text-lg font-black text-foreground">{f.course}</h3>
+                            <p className="font-semibold mt-1" style={{ color }}>
+                              {f.institution}
+                            </p>
+                            {(f.city || f.country) && (
+                              <p className="text-muted-foreground text-sm">
+                                {[f.city, f.country].filter(Boolean).join(", ")}
+                              </p>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-3 shrink-0">
+                            {f.obtained_date && (
+                              <div className="hidden sm:flex items-center gap-1.5 text-muted-foreground text-sm font-mono">
+                                <Calendar size={13} className="text-accent" />
+                                {f.obtained_date}
+                              </div>
+                            )}
+                            <ChevronDown
+                              size={20}
+                              className="text-muted-foreground transition-transform duration-300"
+                              style={{ transform: open ? "rotate(180deg)" : "rotate(0deg)" }}
+                            />
+                          </div>
+                        </div>
 
-              {/* Accordion content */}
-              <div
-                className="overflow-hidden transition-all duration-500 ease-in-out"
-                style={{
-                  maxHeight: openIndex === i ? `${f.competencies.length * 60}px` : "0px",
-                  opacity: openIndex === i ? 1 : 0,
-                }}
-              >
-                <div className="px-7 sm:px-8 pb-7 sm:pb-8 pt-0">
-                  <div className="border-t border-border/50 pt-5">
-                    <p className="text-xs font-mono font-bold text-accent/80 tracking-widest uppercase mb-4">
-                      Competencias adquiridas
-                    </p>
-                    <ul className="grid sm:grid-cols-2 gap-3">
-                      {f.competencies.map((c) => (
-                        <li key={c} className="flex items-start gap-2.5 text-sm text-muted-foreground">
-                          <span className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0" style={{ background: f.color }} />
-                          {c}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
+                        <div className="flex items-center flex-wrap gap-2 mt-3">
+                          <span
+                            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold"
+                            style={{ background: `${color}15`, color, border: `1px solid ${color}30` }}
+                          >
+                            <GraduationCap size={13} />
+                            {f.status}
+                          </span>
+                          {f.obtained_date && (
+                            <span className="sm:hidden text-xs text-muted-foreground font-mono">{f.obtained_date}</span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </button>
+
+                  {f.certificate_url && (
+                    <div
+                      className="overflow-hidden transition-all duration-300 ease-in-out"
+                      style={{
+                        maxHeight: open ? "120px" : "0px",
+                        opacity: open ? 1 : 0,
+                      }}
+                    >
+                      <div className="px-6 sm:px-8 pb-6 pt-0">
+                        <div className="border-t border-border/50 pt-4">
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setCert({
+                                url: f.certificate_url!,
+                                mime: f.certificate_mime,
+                                title: f.course,
+                              });
+                            }}
+                            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl font-semibold text-sm bg-accent/10 text-accent border border-accent/30 hover:bg-accent/20 transition-colors"
+                          >
+                            <FileText size={14} />
+                            Ver certificado
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
-              </div>
-            </div>
-          ))}
-        </div>
+              );
+            })}
+          </div>
+        )}
       </div>
+
+      <CertificateModal
+        url={cert?.url ?? null}
+        mime={cert?.mime ?? null}
+        title={cert?.title}
+        onClose={() => setCert(null)}
+      />
     </section>
+  );
+}
+
+function EmptyState() {
+  return (
+    <div className="glass-card rounded-2xl p-10 sm:p-14 text-center">
+      <div
+        className="w-16 h-16 mx-auto rounded-2xl flex items-center justify-center mb-5"
+        style={{
+          background: "linear-gradient(135deg, hsl(217 91% 60% / 0.15), hsl(187 92% 42% / 0.15))",
+          border: "1px solid hsl(217 91% 60% / 0.3)",
+        }}
+      >
+        <GraduationCap size={28} className="text-accent" />
+      </div>
+      <h3 className="text-xl sm:text-2xl font-black mb-2">Formación en construcción</h3>
+      <p className="text-muted-foreground max-w-md mx-auto">
+        Próximamente: cursos, certificaciones y la base académica que sostiene cada decisión técnica.
+      </p>
+    </div>
   );
 }
