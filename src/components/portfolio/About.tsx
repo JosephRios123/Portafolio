@@ -26,22 +26,21 @@ const metrics = [
 
 type Technology = {
   name: string;
-  level: string;
   description: string;
   Icon: LucideIcon;
 };
 
 const technologies: Technology[] = [
-  { name: "React", level: "Avanzado", description: "Interfaces modulares y experiencias de alto rendimiento.", Icon: Atom },
-  { name: "TypeScript", level: "Avanzado", description: "Contratos sólidos y código seguro a escala.", Icon: Braces },
-  { name: "JavaScript", level: "Avanzado", description: "Lógica moderna para productos web mantenibles.", Icon: Code2 },
-  { name: "Node.js", level: "Intermedio", description: "Servicios asíncronos y herramientas del lado servidor.", Icon: Cpu },
-  { name: "Supabase", level: "Avanzado", description: "Datos, autenticación y almacenamiento integrados.", Icon: DatabaseZap },
-  { name: "Cloud", level: "Intermedio", description: "Despliegue y operación de soluciones escalables.", Icon: Cloud },
-  { name: "Database", level: "Avanzado", description: "Modelado relacional, consultas y optimización.", Icon: Database },
-  { name: "Backend", level: "Avanzado", description: "APIs robustas, reglas de negocio y arquitectura limpia.", Icon: ServerCog },
-  { name: "UI/UX", level: "Intermedio", description: "Interfaces claras con foco en accesibilidad y uso.", Icon: PanelsTopLeft },
-  { name: "Terminal", level: "Avanzado", description: "Automatización, diagnóstico y flujos de desarrollo.", Icon: Terminal },
+  { name: "React", description: "Interfaces modulares y experiencias de alto rendimiento.", Icon: Atom },
+  { name: "TypeScript", description: "Contratos sólidos y código seguro a escala.", Icon: Braces },
+  { name: "JavaScript", description: "Lógica moderna para productos web mantenibles.", Icon: Code2 },
+  { name: "Node.js", description: "Servicios asíncronos y herramientas del lado servidor.", Icon: Cpu },
+  { name: "Supabase", description: "Datos, autenticación y almacenamiento integrados.", Icon: DatabaseZap },
+  { name: "Cloud", description: "Despliegue y operación de soluciones escalables.", Icon: Cloud },
+  { name: "Database", description: "Modelado relacional, consultas y optimización.", Icon: Database },
+  { name: "Backend", description: "APIs robustas, reglas de negocio y arquitectura limpia.", Icon: ServerCog },
+  { name: "UI/UX", description: "Interfaces claras con foco en accesibilidad y uso.", Icon: PanelsTopLeft },
+  { name: "Terminal", description: "Automatización, diagnóstico y flujos de desarrollo.", Icon: Terminal },
 ];
 
 function useScrollAnimation(ref: React.RefObject<HTMLElement>) {
@@ -104,7 +103,7 @@ export default function About() {
                     <button
                       type="button"
                       className="tech-hub__node"
-                      aria-label={`${tech.name}, dominio ${tech.level}`}
+                      aria-label={tech.name}
                       aria-pressed={isActive}
                       onFocus={() => setActiveTechnology(tech)}
                       onMouseEnter={() => setActiveTechnology(tech)}
@@ -113,7 +112,6 @@ export default function About() {
                       <Icon aria-hidden="true" />
                       <span className="tech-hub__tooltip" role="tooltip">
                         <strong>{tech.name}</strong>
-                        <small>{tech.level}</small>
                         <span>{tech.description}</span>
                       </span>
                     </button>
@@ -157,7 +155,6 @@ export default function About() {
               <div className="min-w-0">
                 <div className="mb-1 flex flex-wrap items-baseline gap-x-3 gap-y-1">
                   <h3 className="font-mono text-base font-bold text-foreground">{activeTechnology.name}</h3>
-                  <span className="font-mono text-[11px] uppercase text-accent">{activeTechnology.level}</span>
                 </div>
                 <p className="text-sm leading-relaxed text-muted-foreground">{activeTechnology.description}</p>
               </div>
