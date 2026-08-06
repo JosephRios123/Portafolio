@@ -379,10 +379,8 @@
 }
 
 .tech-hub__tooltip strong,
-.tech-hub__tooltip small,
 .tech-hub__tooltip > span { display: block; }
 .tech-hub__tooltip strong { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; }
-.tech-hub__tooltip small { margin-top: 0.15rem; color: hsl(var(--accent)); font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; text-transform: uppercase; }
 .tech-hub__tooltip > span { margin-top: 0.35rem; color: hsl(var(--muted-foreground)); font-size: 0.7rem; line-height: 1.35; }
 .tech-hub__node:hover .tech-hub__tooltip,
 .tech-hub__node:focus-visible .tech-hub__tooltip { opacity: 1; visibility: visible; translate: -50% 0; }
