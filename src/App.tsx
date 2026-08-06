@@ -17,6 +17,7 @@ const ProjectsAdmin = lazy(() => import("./pages/admin/ProjectsAdmin"));
 const ExperienceAdmin = lazy(() => import("./pages/admin/ExperienceAdmin"));
 const MindsetAdmin = lazy(() => import("./pages/admin/MindsetAdmin"));
 const FormationsAdmin = lazy(() => import("./pages/admin/FormationsAdmin"));
+const EventsAdmin = lazy(() => import("./pages/admin/EventsAdmin"));
 
 const queryClient = new QueryClient();
 
@@ -89,6 +90,14 @@ const App = () => (
                   element={
                     <Suspense fallback={<AdminFallback />}>
                       <FormationsAdmin />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path="events"
+                  element={
+                    <Suspense fallback={<AdminFallback />}>
+                      <EventsAdmin />
                     </Suspense>
                   }
                 />

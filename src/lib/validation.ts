@@ -34,6 +34,23 @@ export const mindsetSchema = z.object({
   display_order: z.number().int(),
 });
 
+export const eventSchema = z.object({
+  title: z.string().trim().min(1, "Requerido").max(140),
+  organization: z.string().trim().min(1, "Requerido").max(140),
+  event_type: z.enum(["Conferencia", "Workshop", "Meetup", "Webinar", "Otro"]),
+  participation_role: z.enum(["Ponente", "Asistente", "Organizador", "Mentor", "Otro"]),
+  event_date: z.string().trim().min(1, "Requerido").max(40),
+  location: z.string().trim().max(120).nullable(),
+  description: z.string().trim().min(10, "Mín. 10 caracteres").max(600),
+  link: urlOrEmpty.nullable(),
+  display_order: z.number().int(),
+  icon_emoji: z.string().nullable(),
+  icon_image_url: z.string().nullable(),
+  certificate_url: z.string().nullable(),
+  certificate_mime: z.string().nullable(),
+  id: z.string().optional(),
+});
+
 export const experienceSchema = z
   .object({
     role: z.string().trim().min(1, "Requerido").max(120),

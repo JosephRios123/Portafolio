@@ -51,6 +51,23 @@ export type PublicPrinciple = {
   display_order: number;
 };
 
+export type PublicProfessionalEvent = {
+  id: string;
+  title: string;
+  organization: string;
+  event_type: string;
+  participation_role: string;
+  event_date: string;
+  location: string | null;
+  description: string;
+  link: string | null;
+  icon_emoji: string | null;
+  icon_image_url: string | null;
+  certificate_url: string | null;
+  certificate_mime: string | null;
+  display_order: number;
+};
+
 function useFetch<T>(loader: () => Promise<T[]>, deps: unknown[] = []) {
   const [data, setData] = useState<T[]>([]);
   const [loading, setLoading] = useState(true);
@@ -111,4 +128,15 @@ export const useMindset = () =>
     const { data, error } = await supabase.from("mindset_principles").select("*").order("display_order");
     if (error) throw error;
     return (data ?? []) as PublicPrinciple[];
+  });
+
+export const useProfessionalEvents = () =>
+  useFetch<PublicProfessionalEvent>(async () => {
+    const { data, error } = await supabase
+      .from("professional_events")
+      .select("*")
+      .order("display_order")
+      .order("event_date", { ascending: false });
+    if (error) throw error;
+    return (data ?? []) as PublicProfessionalEvent[];
   });
