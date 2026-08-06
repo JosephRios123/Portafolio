@@ -1,7 +1,21 @@
-import { useEffect, useRef } from "react";
-import { Briefcase, Code2, Building2, Infinity, Database, Braces, Server, Coffee, FileCode2, Terminal, Boxes, Network, CloudCog } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import {
+  Activity,
+  Atom,
+  Briefcase,
+  Braces,
+  Building2,
+  Cloud,
+  Code2,
+  Cpu,
+  Database,
+  DatabaseZap,
+  Infinity,
+  PanelsTopLeft,
+  ServerCog,
+  Terminal,
+} from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import { revealEasterEgg } from "./EasterEggs";
 
 const metrics = [
   { icon: Briefcase, label: "Años de experiencia", value: "2+" },
@@ -10,12 +24,24 @@ const metrics = [
   { icon: Infinity, label: "Afición", value: "☕" },
 ];
 
-const technologies: { name: string; Icon: LucideIcon }[] = [
-  { name: "PHP / Laravel", Icon: FileCode2 }, { name: "C# / .NET", Icon: Braces },
-  { name: "Python", Icon: Terminal }, { name: "Java", Icon: Coffee },
-  { name: "MySQL", Icon: Database }, { name: "PostgreSQL", Icon: Server },
-  { name: "JavaScript", Icon: Code2 }, { name: "React", Icon: Boxes },
-  { name: "REST APIs", Icon: Network }, { name: "Backend Cloud", Icon: CloudCog },
+type Technology = {
+  name: string;
+  level: string;
+  description: string;
+  Icon: LucideIcon;
+};
+
+const technologies: Technology[] = [
+  { name: "React", level: "Avanzado", description: "Interfaces modulares y experiencias de alto rendimiento.", Icon: Atom },
+  { name: "TypeScript", level: "Avanzado", description: "Contratos sólidos y código seguro a escala.", Icon: Braces },
+  { name: "JavaScript", level: "Avanzado", description: "Lógica moderna para productos web mantenibles.", Icon: Code2 },
+  { name: "Node.js", level: "Intermedio", description: "Servicios asíncronos y herramientas del lado servidor.", Icon: Cpu },
+  { name: "Supabase", level: "Avanzado", description: "Datos, autenticación y almacenamiento integrados.", Icon: DatabaseZap },
+  { name: "Cloud", level: "Intermedio", description: "Despliegue y operación de soluciones escalables.", Icon: Cloud },
+  { name: "Database", level: "Avanzado", description: "Modelado relacional, consultas y optimización.", Icon: Database },
+  { name: "Backend", level: "Avanzado", description: "APIs robustas, reglas de negocio y arquitectura limpia.", Icon: ServerCog },
+  { name: "UI/UX", level: "Intermedio", description: "Interfaces claras con foco en accesibilidad y uso.", Icon: PanelsTopLeft },
+  { name: "Terminal", level: "Avanzado", description: "Automatización, diagnóstico y flujos de desarrollo.", Icon: Terminal },
 ];
 
 function useScrollAnimation(ref: React.RefObject<HTMLElement>) {
@@ -33,133 +59,73 @@ function useScrollAnimation(ref: React.RefObject<HTMLElement>) {
 
 export default function About() {
   const sectionRef = useRef<HTMLElement>(null);
+  const [activeTechnology, setActiveTechnology] = useState(technologies[0]);
   useScrollAnimation(sectionRef);
 
   return (
-    <section id="about" ref={sectionRef} className="chapter-section py-20 sm:py-28 px-4 sm:px-6 section-divider">
-      <div className="max-w-7xl mx-auto">
+    <section id="about" ref={sectionRef} className="chapter-section section-divider px-4 py-20 sm:px-6 sm:py-24">
+      <div className="mx-auto max-w-7xl">
         <div className="animate-in-view flex items-center gap-3 mb-4">
           <span className="w-8 h-px gradient-bg" />
-          <span className="text-accent text-sm font-mono font-bold tracking-widest uppercase">Sobre Mí</span>
+          <span className="font-mono text-sm font-bold uppercase text-accent">system.profile_info</span>
         </div>
 
-        <h2 className="animate-in-view text-3xl sm:text-4xl md:text-5xl font-black mb-10 sm:mb-16 leading-tight" style={{ transitionDelay: "0.1s" }}>
-          Estrategia + <span className="gradient-text">Código</span>
+        <h2 className="animate-in-view mb-8 text-3xl font-black leading-tight sm:text-4xl md:text-5xl" style={{ transitionDelay: "0.1s" }}>
+          Arquitectura + <span className="gradient-text">Código</span>
         </h2>
 
-        <div className="grid lg:grid-cols-2 gap-10 sm:gap-12 items-center">
-          {/* Orbital tech system */}
-          <div className="animate-in-view order-2 lg:order-1 flex justify-center" style={{ transitionDelay: "0.15s" }}>
-            <div className="relative aspect-square w-full max-w-[330px] sm:max-w-[380px]">
-              {/* Orbit rings */}
-              <div
-                className="absolute rounded-full"
-                style={{
-                  inset: "-10px",
-                  border: "1px solid hsl(217 91% 60% / 0.1)",
-                  animation: "spin 30s linear infinite",
-                }}
-              />
-              <div
-                className="absolute rounded-full"
-                style={{
-                  inset: "-40px",
-                  border: "1px dashed hsl(187 92% 42% / 0.08)",
-                  animation: "spin 45s linear infinite reverse",
-                }}
-              />
+        <div className="grid gap-5 lg:grid-cols-12 lg:items-stretch">
+          <div className="animate-in-view order-2 min-w-0 lg:order-1 lg:col-span-5" style={{ transitionDelay: "0.15s" }}>
+            <div className="tech-hub" aria-label="Mapa orbital de tecnologías">
+              <div className="tech-hub__ambient" aria-hidden="true" />
+              <svg className="tech-hub__geometry" viewBox="0 0 100 100" aria-hidden="true">
+                <circle cx="50" cy="50" r="39" className="tech-hub__ring" />
+                <circle cx="50" cy="50" r="27" className="tech-hub__ring tech-hub__ring--inner" />
+                {technologies.map((_, index) => {
+                  const angle = (index * 360) / technologies.length - 90;
+                const rad = (angle * Math.PI) / 180;
+                  return <line key={index} x1="50" y1="50" x2={50 + Math.cos(rad) * 39} y2={50 + Math.sin(rad) * 39} className="tech-hub__line" />;
+                })}
+              </svg>
 
-              {/* Central circle */}
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div
-                  className="absolute inset-0 rounded-full"
-                  style={{
-                    background: "conic-gradient(from 0deg, hsl(217 91% 60%), hsl(187 92% 42%), hsl(217 91% 60%))",
-                    animation: "spin 8s linear infinite",
-                    padding: "2px",
-                    borderRadius: "9999px",
-                  }}
-                />
-                <div
-                  className="relative w-32 h-32 rounded-full flex items-center justify-center glass-card z-10"
-                  style={{ border: "none" }}
-                >
-                  <div
-                    className="w-28 h-28 rounded-full flex items-center justify-center"
-                    style={{
-                      background: "radial-gradient(circle at 35% 35%, hsl(217 91% 60% / 0.2), hsl(187 92% 42% / 0.1))",
-                      boxShadow: "inset 0 0 40px hsl(217 91% 60% / 0.1)",
-                    }}
-                  >
-                    <div className="text-center">
-                      <div className="text-4xl mb-1">👨‍💻</div>
-                      <div className="text-[9px] font-mono text-accent/70">&lt;dev /&gt;</div>
-                    </div>
-                  </div>
-                </div>
+              <div className="tech-hub__core">
+                <div className="tech-hub__core-icon"><Cpu aria-hidden="true" /></div>
+                <strong>BACKEND</strong>
+                <span><Activity aria-hidden="true" /> CORE_ACTIVE</span>
               </div>
 
-              {/* Orbiting tech icons */}
-              {technologies.map((tech, i) => {
-                const angle = (i * 360) / technologies.length;
+              {technologies.map((tech, index) => {
+                const angle = (index * 360) / technologies.length - 90;
                 const rad = (angle * Math.PI) / 180;
-                // Use percentage-based positioning so orbit scales with container
-                const xPct = 50 + Math.cos(rad) * 42;
-                const yPct = 50 + Math.sin(rad) * 42;
                 const Icon = tech.Icon;
-
+                const isActive = activeTechnology.name === tech.name;
                 return (
-                  <div
-                    key={tech.name}
-                    className="absolute group cursor-default -translate-x-1/2 -translate-y-1/2"
-                    style={{
-                      left: `${xPct}%`,
-                      top: `${yPct}%`,
-                      animation: `float ${3 + (i % 3) * 0.5}s ease-in-out ${i * 0.2}s infinite`,
-                    }}
-                  >
-                    <div
-                      className="w-10 h-10 sm:w-12 sm:h-12 rounded-md flex items-center justify-center border border-primary/25 bg-card text-accent shadow-lg transition-all duration-300 group-hover:scale-110 group-hover:border-accent/60"
-                      onDoubleClick={() => tech.name === "Backend Cloud" && revealEasterEgg("El backend también guarda secretos.")}
+                  <div key={tech.name} className="tech-hub__node-position" style={{ left: `${50 + Math.cos(rad) * 39}%`, top: `${50 + Math.sin(rad) * 39}%` }}>
+                    <button
+                      type="button"
+                      className="tech-hub__node"
+                      aria-label={`${tech.name}, dominio ${tech.level}`}
+                      aria-pressed={isActive}
+                      onFocus={() => setActiveTechnology(tech)}
+                      onMouseEnter={() => setActiveTechnology(tech)}
+                      onClick={() => setActiveTechnology(tech)}
                     >
-                      <Icon size={20} aria-hidden="true" />
-                    </div>
-                    {/* Tooltip */}
-                    <div className="absolute -bottom-7 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none">
-                      <span className="text-[10px] font-bold text-foreground bg-background/90 px-2 py-0.5 rounded-md border border-border">
-                        {tech.name}
+                      <Icon aria-hidden="true" />
+                      <span className="tech-hub__tooltip" role="tooltip">
+                        <strong>{tech.name}</strong>
+                        <small>{tech.level}</small>
+                        <span>{tech.description}</span>
                       </span>
-                    </div>
+                    </button>
                   </div>
                 );
               })}
-
-              {/* Connection lines (decorative) */}
-              <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-10" viewBox="0 0 340 340" aria-hidden="true">
-                {technologies.map((_, i) => {
-                  const angle = (i * 360) / technologies.length;
-                  const rad = (angle * Math.PI) / 180;
-                  const x = 170 + Math.cos(rad) * 143;
-                  const y = 170 + Math.sin(rad) * 143;
-                  return (
-                    <line
-                      key={i}
-                      x1="170" y1="170"
-                      x2={x} y2={y}
-                      stroke="hsl(217 91% 60%)"
-                      strokeWidth="0.5"
-                      strokeDasharray="4 4"
-                    />
-                  );
-                })}
-              </svg>
             </div>
           </div>
 
-          {/* Text side */}
-          <div className="animate-in-view order-1 lg:order-2" style={{ transitionDelay: "0.2s" }}>
-            <div className="glass-card rounded-2xl p-8 mb-8">
-              <p className="text-muted-foreground leading-relaxed text-lg">
+          <div className="animate-in-view order-1 flex min-w-0 flex-col gap-5 lg:order-2 lg:col-span-7" style={{ transitionDelay: "0.2s" }}>
+            <div className="about-bento-panel p-6 sm:p-8">
+              <p className="text-base leading-relaxed text-muted-foreground sm:text-lg">
                 Soy desarrollador backend especializado en la creación de soluciones{" "}
                 <span className="text-primary font-semibold">eficientes y escalables</span>. Tengo experiencia en{" "}
                 <span className="text-accent font-semibold">pruebas, optimización de rendimiento</span> y desarrollo
@@ -170,19 +136,31 @@ export default function About() {
               </p>
             </div>
 
-            {/* Metrics */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-3 sm:gap-4">
               {metrics.map(({ icon: Icon, label, value }, i) => (
                 <div
                   key={label}
-                  className="glass-card-hover rounded-xl p-5"
+                  className="about-bento-panel p-4 sm:p-5"
                   style={{ transitionDelay: `${0.25 + i * 0.05}s` }}
                 >
-                  <Icon size={20} className="text-accent mb-2" />
-                  <div className="text-3xl font-black gradient-text">{value}</div>
+                  <Icon size={18} className="mb-2 text-accent" />
+                  <div className="gradient-text text-2xl font-black sm:text-3xl">{value}</div>
                   <div className="text-xs text-muted-foreground mt-1">{label}</div>
                 </div>
               ))}
+            </div>
+
+            <div className="about-bento-panel flex min-h-32 items-start gap-4 p-5" aria-live="polite">
+              <div className="flex size-11 shrink-0 items-center justify-center rounded-md border border-accent/30 bg-accent/10 text-accent">
+                <activeTechnology.Icon aria-hidden="true" size={21} />
+              </div>
+              <div className="min-w-0">
+                <div className="mb-1 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                  <h3 className="font-mono text-base font-bold text-foreground">{activeTechnology.name}</h3>
+                  <span className="font-mono text-[11px] uppercase text-accent">{activeTechnology.level}</span>
+                </div>
+                <p className="text-sm leading-relaxed text-muted-foreground">{activeTechnology.description}</p>
+              </div>
             </div>
           </div>
         </div>

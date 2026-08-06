@@ -21,6 +21,10 @@ export default {
       "2xl": "1536px",
     },
     extend: {
+      fontFamily: {
+        sans: ["Work Sans", "system-ui", "sans-serif"],
+        mono: ["JetBrains Mono", "ui-monospace", "monospace"],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
