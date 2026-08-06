@@ -100,7 +100,7 @@ export default function AdminLayout() {
   );
 
   return (
-    <div className="min-h-screen flex bg-background text-foreground overflow-x-hidden">
+    <div className="min-h-dvh flex bg-background text-foreground overflow-x-hidden">
       {/* Desktop sidebar */}
       <aside
         className="hidden md:flex md:w-64 border-r border-border/60 flex-col shrink-0"

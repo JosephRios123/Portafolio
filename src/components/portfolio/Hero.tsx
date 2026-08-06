@@ -134,9 +134,7 @@ export default function Hero() {
 
         {/* Authority phrase */}
         <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto mb-12 leading-relaxed">
-          Diseño <span className="text-primary font-semibold">APIs que escalan</span>, <span className="text-accent font-semibold">bases de datos que vuelan</span> y arquitecturas que no se rompen bajo presión.
-          <br className="hidden sm:block" />
-          El backend invisible que sostiene cada experiencia que <span className="text-primary font-semibold">sí</span> se siente.
+          Construyo <span className="text-primary font-semibold">APIs rápidas</span>, datos confiables y <span className="text-accent font-semibold">backends que escalan</span> sin romperse.
         </p>
 
         {/* CTA Buttons */}
@@ -167,7 +165,7 @@ export default function Hero() {
 
         {/* Scroll indicator */}
         <div className="mt-20 flex flex-col items-center gap-2 text-muted-foreground/60 text-sm">
-          <span>Scroll para explorar</span>
+          <span>Desliza para explorar</span>
           <div
             className="w-6 h-10 rounded-full border-2 border-muted-foreground/20 flex items-start justify-center p-1"
           >

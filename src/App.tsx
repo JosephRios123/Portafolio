@@ -22,7 +22,7 @@ const EventsAdmin = lazy(() => import("./pages/admin/EventsAdmin"));
 const queryClient = new QueryClient();
 
 const AdminFallback = () => (
-  <div className="min-h-screen flex items-center justify-center bg-background">
+  <div className="min-h-dvh flex items-center justify-center bg-background">
     <Loader2 className="animate-spin text-accent" size={28} />
   </div>
 );
