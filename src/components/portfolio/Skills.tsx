@@ -82,7 +82,7 @@ export default function Skills() {
   useScrollAnimation(sectionRef);
 
   return (
-    <section id="skills" ref={sectionRef} className="py-20 sm:py-28 px-4 sm:px-6 section-divider">
+    <section id="skills" ref={sectionRef} className="chapter-section py-20 sm:py-28 px-4 sm:px-6 section-divider">
       <div className="max-w-7xl mx-auto">
         {/* Soft Skills */}
         <div className="animate-in-view flex items-center gap-3 mb-4">

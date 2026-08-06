@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ArrowDown, ExternalLink, Mail, Download } from "lucide-react";
 import { generateCV } from "@/lib/generateCV";
 
@@ -39,17 +39,24 @@ function useTypewriter(texts: string[], speed = 80, pause = 2000) {
 
 // Decorative floating particles
 function Particles() {
+  const particles = useMemo(() => Array.from({ length: 20 }, (_, i) => ({
+    id: i,
+    left: (i * 37 + 11) % 100,
+    top: (i * 53 + 7) % 100,
+    duration: 8 + (i % 8),
+    delay: (i % 5),
+  })), []);
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      {Array.from({ length: 20 }).map((_, i) => (
+      {particles.map((particle) => (
         <div
-          key={i}
+          key={particle.id}
           className="absolute w-1 h-1 rounded-full opacity-30"
           style={{
-            left: `${Math.random() * 100}%`,
-            top: `${Math.random() * 100}%`,
-            background: i % 2 === 0 ? "hsl(217 91% 60%)" : "hsl(187 92% 42%)",
-            animation: `particle-float ${8 + Math.random() * 8}s linear ${Math.random() * 5}s infinite`,
+            left: `${particle.left}%`,
+            top: `${particle.top}%`,
+            background: particle.id % 2 === 0 ? "hsl(217 91% 60%)" : "hsl(187 92% 42%)",
+            animation: `particle-float ${particle.duration}s linear ${particle.delay}s infinite`,
           }}
         />
       ))}
@@ -79,7 +86,7 @@ export default function Hero() {
   return (
     <section
       id="hero"
-      className="relative min-h-screen flex items-center justify-center overflow-hidden"
+      className="chapter-section relative min-h-dvh flex items-center justify-center overflow-hidden"
       style={{
         background:
           "radial-gradient(ellipse 80% 60% at 50% -10%, hsl(217 91% 60% / 0.15) 0%, transparent 60%), radial-gradient(ellipse 60% 40% at 80% 80%, hsl(187 92% 42% / 0.1) 0%, transparent 50%), hsl(var(--background))",
@@ -150,7 +157,7 @@ export default function Hero() {
             <Mail size={18} className="group-hover:scale-110 transition-transform" />
           </a>
           <button
-            onClick={() => generateCV()}
+            onClick={() => void generateCV()}
             className="group flex items-center justify-center gap-2 px-6 sm:px-8 py-3.5 sm:py-4 rounded-full border-2 border-accent/50 text-accent font-bold text-base sm:text-lg hover:border-primary hover:text-primary hover:bg-primary/5 transition-all duration-300 active:scale-95 min-h-[48px]"
           >
             Descargar CV
