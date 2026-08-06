@@ -221,6 +221,20 @@
   isolation: isolate;
 }
 
+.tech-hub::before {
+  content: "";
+  position: absolute;
+  inset: 8%;
+  z-index: -1;
+  border-radius: 9999px;
+  background-image:
+    radial-gradient(circle at 16% 28%, hsl(var(--accent) / 0.5) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 78% 18%, hsl(var(--primary) / 0.45) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 88% 68%, hsl(var(--accent) / 0.35) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 28% 84%, hsl(var(--primary) / 0.4) 0 1px, transparent 1.5px);
+  animation: hub-particles 8s ease-in-out infinite alternate;
+}
+
 .tech-hub__ambient {
   position: absolute;
   inset: 18%;
@@ -376,6 +390,11 @@
 @keyframes hub-breathe {
   0%, 100% { opacity: 0.72; scale: 0.96; }
   50% { opacity: 1; scale: 1.04; }
+}
+
+@keyframes hub-particles {
+  from { opacity: 0.38; transform: rotate(-1deg) scale(0.99); }
+  to { opacity: 0.75; transform: rotate(1deg) scale(1.01); }
 }
 
 @media (max-width: 639px) {
