@@ -185,7 +185,7 @@ export async function generateCV() {
   doc.setFont("times", "italic");
   doc.setFontSize(9);
   doc.setTextColor(...muted);
-  doc.text("Medellín, Colombia  ·  +57 318 753 7304  ·  cresposfelices@gmail.com", margin, y);
+  doc.text("Medellín, Colombia  ·  +57 318 753 7304  ·  cresposfelices@gmail.com  ·  Inglés B1", margin, y);
   y += 4.5;
   doc.text("linkedin.com/in/jose-manuel-rios-restrepo-69ab691b4  ·  cvjosemanuelriosrestrepo.lovable.app", margin, y);
   y += 6;
@@ -241,19 +241,6 @@ export async function generateCV() {
       y += 2;
     });
   }
-
-  sectionLabel("Idiomas");
-  bodyParagraph("Español · Nativo    |    Inglés · Intermedio (B1)");
-  ensureSpace(17);
-  y += 5;
-  doc.setDrawColor(...accent);
-  doc.setLineWidth(0.3);
-  doc.line(margin, y, margin + 10, y);
-  y += 6;
-  doc.setFont("times", "italic");
-  doc.setFontSize(10);
-  doc.setTextColor(...ink);
-  doc.text("Desarrollo backend con criterios de calidad, mantenibilidad y rendimiento.", margin, y);
 
   doc.save("Jose_Manuel_Rios_Restrepo_CV.pdf");
 }
