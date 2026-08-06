@@ -2,15 +2,33 @@ import jsPDF from "jspdf";
 import { supabase } from "@/integrations/supabase/client";
 import type { PublicExperience, PublicFormation, PublicProfessionalEvent, PublicProject } from "@/hooks/usePublicData";
 
-/**
- * CV editorial — paleta sobria (negro profundo + acento teal #0F766E)
- * - Tipografía dual: Helvetica (proxy de Inter) para titulares, Times para cuerpo
- * - Layout 1 columna ATS-safe (texto vectorial puro, sin imágenes)
- * - Chips de skills con borde fino sin relleno
- * - Bullets con verbos de impacto en pasado
- * - Frase firma de cierre
- */
 type CVData = { projects: PublicProject[]; experiences: PublicExperience[]; formations: PublicFormation[]; events: PublicProfessionalEvent[] };
+type RGB = [number, number, number];
+
+const STACK = [
+  { category: "Backend", items: ["PHP", "Laravel", "C# / .NET Core", "Java", "Python", "REST APIs", "Node.js"] },
+  { category: "Bases de datos", items: ["MySQL", "PostgreSQL", "Diseño relacional", "Optimización de consultas"] },
+  { category: "Herramientas / DevOps", items: ["Git", "Linux", "VS Code", "Postman", "GitHub Actions"] },
+  { category: "Metodologías", items: ["SCRUM", "Testing y QA", "Clean Code", "Pair Programming", "Code Review"] },
+];
+
+const neutralizeExperienceText = (text: string) => {
+  const replacements: Array<[RegExp, string]> = [
+    [/^Impulsé\s+/i, "Implementación de "],
+    [/^Construí\s+/i, "Construcción de "],
+    [/^Lideré\s+/i, "Coordinación de "],
+    [/^Desarrollé\s+/i, "Desarrollo de "],
+    [/^Participé en\s+/i, "Participación en "],
+    [/^Realicé pruebas\s+/i, "Pruebas "],
+    [/^Realicé\s+/i, "Ejecución de "],
+    [/^Brindo soporte\s+/i, "Soporte "],
+    [/^Realizo formateos\s+/i, "Formateo "],
+    [/^Llevo a cabo mantenimiento\s+/i, "Mantenimiento "],
+    [/^Instalo y actualizo\s+/i, "Instalación y actualización de "],
+    [/^Me destaco por resolver\s+/i, "Resolución de "],
+  ];
+  return replacements.reduce((result, [pattern, replacement]) => result.replace(pattern, replacement), text);
+};
 
 async function loadCVData(): Promise<CVData> {
   const [projects, experiences, bullets, formations, events] = await Promise.all([
@@ -36,281 +54,193 @@ async function loadCVData(): Promise<CVData> {
 export async function generateCV() {
   const data = await loadCVData();
   const doc = new jsPDF({ unit: "mm", format: "a4" });
-  const W = 210;
-  const H = 297;
+  const pageWidth = 210;
+  const pageHeight = 297;
   const margin = 18;
-  const contentW = W - margin * 2;
+  const contentWidth = pageWidth - margin * 2;
+  const contentBottom = pageHeight - 18;
+  const ink: RGB = [13, 13, 13];
+  const accent: RGB = [15, 118, 110];
+  const muted: RGB = [88, 88, 88];
+  const subtle: RGB = [205, 205, 202];
+  const paper: RGB = [250, 250, 249];
   let y = 0;
+  let pageNumber = 1;
 
-  // Paleta editorial
-  const ink: [number, number, number] = [13, 13, 13];     // #0D0D0D
-  const accent: [number, number, number] = [15, 118, 110]; // teal #0F766E
-  const muted: [number, number, number] = [88, 88, 88];
-  const subtle: [number, number, number] = [180, 180, 180];
-  const paper: [number, number, number] = [250, 250, 249]; // #FAFAF9
+  const paintPage = () => {
+    doc.setFillColor(...paper);
+    doc.rect(0, 0, pageWidth, pageHeight, "F");
+    doc.setDrawColor(...accent);
+    doc.setLineWidth(0.6);
+    doc.line(margin, 12, margin + 18, 12);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(7);
+    doc.setTextColor(...muted);
+    doc.text(`Jose Manuel Rios Restrepo  ·  ${pageNumber}`, pageWidth - margin, pageHeight - 10, { align: "right" });
+  };
 
-  // Background paper
-  doc.setFillColor(...paper);
-  doc.rect(0, 0, W, H, "F");
+  const newPage = () => {
+    doc.addPage();
+    pageNumber += 1;
+    paintPage();
+    y = 22;
+  };
 
-  // Top hairline accent
-  doc.setDrawColor(...accent);
-  doc.setLineWidth(0.6);
-  doc.line(margin, 12, margin + 18, 12);
+  const ensureSpace = (height: number) => {
+    if (y + height > contentBottom) newPage();
+  };
 
-  // ── HEADER ──────────────────────────────────────────
+  const sectionLabel = (title: string) => {
+    ensureSpace(15);
+    y += 7;
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(8);
+    doc.setTextColor(...accent);
+    doc.text(title.toUpperCase(), margin, y);
+    doc.setDrawColor(...subtle);
+    doc.setLineWidth(0.15);
+    doc.line(margin + 47, y - 1, pageWidth - margin, y - 1);
+    y += 5;
+  };
+
+  const bodyParagraph = (text: string) => {
+    doc.setFont("times", "normal");
+    doc.setFontSize(10);
+    const lines = doc.splitTextToSize(text, contentWidth) as string[];
+    const height = lines.length * 4.6;
+    ensureSpace(height);
+    doc.setTextColor(...ink);
+    doc.text(lines, margin, y);
+    y += height;
+  };
+
+  const bullet = (text: string) => {
+    doc.setFont("times", "normal");
+    doc.setFontSize(9.5);
+    const lines = doc.splitTextToSize(text, contentWidth - 7) as string[];
+    const height = Math.max(4.6, lines.length * 4.4);
+    ensureSpace(height + 1);
+    doc.setFillColor(...accent);
+    doc.circle(margin + 1.4, y - 1.2, 0.55, "F");
+    doc.setTextColor(...ink);
+    doc.text(lines, margin + 5, y);
+    y += height;
+  };
+
+  const entryHeader = (title: string, subtitle: string, meta: string, followingHeight = 0) => {
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(10.5);
+    const titleLines = doc.splitTextToSize(title, contentWidth * 0.66) as string[];
+    ensureSpace(titleLines.length * 4.2 + 6 + followingHeight);
+    doc.setTextColor(...ink);
+    doc.text(titleLines, margin, y);
+    doc.setFont("times", "italic");
+    doc.setFontSize(9);
+    doc.setTextColor(...muted);
+    if (meta) doc.text(meta, pageWidth - margin, y, { align: "right", maxWidth: contentWidth * 0.3 });
+    y += titleLines.length * 4.2;
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(9);
+    doc.setTextColor(...accent);
+    doc.text(subtitle, margin, y);
+    y += 5;
+  };
+
+  const stackRow = (category: string, items: string[]) => {
+    const categoryWidth = 43;
+    const itemsX = margin + categoryWidth;
+    const itemsWidth = contentWidth - categoryWidth - 3;
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9);
+    const lines = doc.splitTextToSize(items.join("  ·  "), itemsWidth) as string[];
+    const rowHeight = Math.max(9, lines.length * 4.2 + 4);
+    ensureSpace(rowHeight);
+    doc.setFillColor(244, 246, 245);
+    doc.rect(margin, y - 3.3, contentWidth, rowHeight, "F");
+    doc.setDrawColor(...subtle);
+    doc.setLineWidth(0.15);
+    doc.line(itemsX - 3, y - 3.3, itemsX - 3, y - 3.3 + rowHeight);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(8);
+    doc.setTextColor(...accent);
+    doc.text(category.toUpperCase(), margin + 3, y + 1);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9);
+    doc.setTextColor(...ink);
+    doc.text(lines, itemsX, y + 1);
+    y += rowHeight + 1.5;
+  };
+
+  paintPage();
   y = 24;
   doc.setFont("helvetica", "bold");
   doc.setFontSize(28);
   doc.setTextColor(...ink);
   doc.text("Jose Manuel Rios Restrepo", margin, y);
-
   y += 7;
-  doc.setFont("helvetica", "bold");
   doc.setFontSize(11);
   doc.setTextColor(...accent);
-  doc.text("Backend Developer · API & Database Architect", margin, y);
-
+  doc.text("Backend Developer · API & Database Architecture", margin, y);
   y += 6;
   doc.setFont("times", "italic");
   doc.setFontSize(9);
   doc.setTextColor(...muted);
-  doc.text(
-    "Medellín, Colombia  ·  +57 318 753 7304  ·  cresposfelices@gmail.com",
-    margin,
-    y
-  );
-
+  doc.text("Medellín, Colombia  ·  +57 318 753 7304  ·  cresposfelices@gmail.com  ·  Inglés B1", margin, y);
   y += 4.5;
-  doc.text(
-    "linkedin.com/in/jose-manuel-rios-restrepo-69ab691b4  ·  cvjosemanuelriosrestrepo.lovable.app",
-    margin,
-    y
-  );
-
-  // Hairline divider
+  doc.text("linkedin.com/in/jose-manuel-rios-restrepo-69ab691b4  ·  cvjosemanuelriosrestrepo.lovable.app", margin, y);
   y += 6;
   doc.setDrawColor(...subtle);
   doc.setLineWidth(0.15);
-  doc.line(margin, y, W - margin, y);
+  doc.line(margin, y, pageWidth - margin, y);
 
-  // ── STATS ROW ───────────────────────────────────────
-  y += 9;
-  const stats = [
-    { num: String(data.experiences.length), label: "EXPERIENCIAS" },
-    { num: String(data.projects.length), label: "PROYECTOS" },
-    { num: String(data.formations.length), label: "FORMACIONES" },
-  ];
-  const colW = contentW / 3;
-  stats.forEach((s, i) => {
-    const cx = margin + colW * i;
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(20);
-    doc.setTextColor(...accent);
-    doc.text(s.num, cx, y);
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(7);
-    doc.setTextColor(...muted);
-    doc.text(spaced(s.label), cx, y + 4.5);
-  });
-  y += 11;
-  doc.setDrawColor(...subtle);
-  doc.line(margin, y, W - margin, y);
-
-  // ── HELPERS ─────────────────────────────────────────
-  function spaced(s: string) {
-    // simulate letter-spacing by inserting hairspaces
-    return s.split("").join(" ");
-  }
-
-  function sectionLabel(title: string) {
-    y += 8;
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(8);
-    doc.setTextColor(...accent);
-    doc.text(spaced(title.toUpperCase()), margin, y);
-    y += 4.5;
-  }
-
-  function bodyP(text: string) {
-    doc.setFont("times", "normal");
-    doc.setFontSize(10);
-    doc.setTextColor(...ink);
-    const lines = doc.splitTextToSize(text, contentW);
-    doc.text(lines, margin, y);
-    y += lines.length * 4.6;
-  }
-
-  function bullet(verb: string, rest: string) {
-    doc.setFont("times", "normal");
-    doc.setFontSize(9.5);
-    doc.setTextColor(...ink);
-    // marker
-    doc.setDrawColor(...accent);
-    doc.setLineWidth(0.5);
-    doc.line(margin + 1, y - 1.5, margin + 3.5, y - 1.5);
-    // verb bold
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(9.5);
-    doc.text(verb, margin + 5.5, y);
-    const verbW = doc.getTextWidth(verb + " ");
-    // rest
-    doc.setFont("times", "normal");
-    const lines = doc.splitTextToSize(rest, contentW - 5.5 - verbW);
-    doc.text(lines[0] ?? "", margin + 5.5 + verbW, y);
-    if (lines.length > 1) {
-      const extra = doc.splitTextToSize(lines.slice(1).join(" "), contentW - 5.5);
-      y += 4.4;
-      doc.text(extra, margin + 5.5, y);
-      y += (extra.length - 1) * 4.4;
-    }
-    y += 4.6;
-  }
-
-  function chips(items: string[]) {
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(8);
-    let cx = margin;
-    const padX = 2.5;
-    const padY = 1.6;
-    const gap = 2;
-    const lineH = 6;
-    items.forEach((t) => {
-      const w = doc.getTextWidth(t) + padX * 2;
-      if (cx + w > W - margin) {
-        cx = margin;
-        y += lineH + 1.5;
-      }
-      doc.setDrawColor(...ink);
-      doc.setLineWidth(0.2);
-      doc.roundedRect(cx, y - lineH + 1.5, w, lineH, 1.2, 1.2);
-      doc.setTextColor(...ink);
-      doc.text(t, cx + padX, y - 1);
-      cx += w + gap;
-    });
-    y += 2;
-  }
-
-  function jobHeader(role: string, company: string, period: string) {
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(10.5);
-    doc.setTextColor(...ink);
-    doc.text(role, margin, y);
-    doc.setFont("times", "italic");
-    doc.setFontSize(9);
-    doc.setTextColor(...muted);
-    doc.text(period, W - margin, y, { align: "right" });
-    y += 4.6;
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(9);
-    doc.setTextColor(...accent);
-    doc.text(company, margin, y);
-    y += 5;
-  }
-
-  // ── PERFIL ──────────────────────────────────────────
   sectionLabel("Perfil");
-  bodyP(
-    "Backend developer enfocado en construir APIs, bases de datos y arquitecturas que escalan sin romperse. " +
-    "Experiencia en PHP/Laravel, .NET y testing dentro de equipos ágiles (SCRUM). " +
-    "Trabajo el código como un producto: limpio, mantenible y orientado a impacto medible."
-  );
+  bodyParagraph("Desarrollador backend con experiencia en implementación de APIs, modelado de bases de datos, pruebas y optimización de rendimiento. Trabajo con PHP/Laravel, .NET y equipos ágiles, con énfasis en código mantenible y reglas de negocio claras.");
 
-  // ── EXPERIENCIA ─────────────────────────────────────
   sectionLabel("Experiencia");
-
-  if (data.experiences.length === 0) bodyP("Experiencia disponible próximamente.");
+  if (data.experiences.length === 0) bodyParagraph("Experiencia profesional disponible próximamente.");
   data.experiences.forEach((experience) => {
-    jobHeader(experience.role, experience.company, `${experience.start_date} — ${experience.is_current ? "Actualidad" : experience.end_date ?? ""}`);
-    experience.bullets.forEach((entry) => bullet("Impulsé", entry.text));
-    y += 1.5;
+    entryHeader(experience.role, experience.company, `${experience.start_date} — ${experience.is_current ? "Actualidad" : experience.end_date ?? ""}`, experience.bullets.length ? 5 : 0);
+    experience.bullets.forEach((entry) => bullet(neutralizeExperienceText(entry.text)));
+    y += 2;
   });
 
-  if (data.projects.length) {
+  if (data.projects.length > 0) {
     sectionLabel("Proyectos");
     data.projects.forEach((project) => {
-      jobHeader(project.name, project.tags.join(" · "), project.country ?? "");
-      bullet("Construí", project.description);
+      entryHeader(project.name, project.tags.join(" · "), project.country ?? "", 5);
+      bullet(project.description);
+      y += 2;
     });
   }
 
-  // ── STACK TÉCNICO ───────────────────────────────────
   sectionLabel("Stack técnico");
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(8);
-  doc.setTextColor(...muted);
-  doc.text("BACKEND CORE", margin, y);
-  y += 4;
-  chips(["PHP", "Laravel", "C# / .NET Core", "Java", "Python", "REST APIs", "Node.js"]);
+  STACK.forEach((row) => stackRow(row.category, row.items));
 
-  y += 3;
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(8);
-  doc.setTextColor(...muted);
-  doc.text("BASES DE DATOS", margin, y);
-  y += 4;
-  chips(["MySQL", "PostgreSQL", "Diseño relacional", "Optimización de consultas"]);
+  if (data.formations.length > 0) {
+    sectionLabel("Formación");
+    data.formations.forEach((formation) => {
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9.5);
+      const titleLines = doc.splitTextToSize(formation.course, contentWidth * 0.57) as string[];
+      ensureSpace(Math.max(6, titleLines.length * 4.2));
+      doc.setTextColor(...ink);
+      doc.text(titleLines, margin, y);
+      doc.setFont("times", "italic");
+      doc.setFontSize(9);
+      doc.setTextColor(...muted);
+      doc.text(`${formation.institution}  ·  ${formation.obtained_date ?? formation.status}`, pageWidth - margin, y, { align: "right", maxWidth: contentWidth * 0.39 });
+      y += Math.max(5, titleLines.length * 4.2);
+    });
+  }
 
-  y += 3;
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(8);
-  doc.setTextColor(...muted);
-  doc.text("DEVOPS & TOOLING", margin, y);
-  y += 4;
-  chips(["Git", "Linux", "VS Code", "Postman", "GitHub Actions"]);
-
-  y += 3;
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(8);
-  doc.setTextColor(...muted);
-  doc.text("METODOLOGÍAS", margin, y);
-  y += 4;
-  chips(["SCRUM", "Testing & QA", "Clean Code", "Pair Programming", "Code Review"]);
-
-  // ── FORMACIÓN ───────────────────────────────────────
-  sectionLabel("Formación");
-  data.formations.forEach((formation) => {
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(9.5);
-    doc.setTextColor(...ink);
-    doc.text(formation.course, margin, y);
-    doc.setFont("times", "italic");
-    doc.setFontSize(9);
-    doc.setTextColor(...muted);
-    doc.text(`${formation.institution}  ·  ${formation.obtained_date ?? formation.status}`, W - margin, y, { align: "right" });
-    y += 4.8;
-  });
-
-  if (data.events.length) {
+  if (data.events.length > 0) {
     sectionLabel("Conferencias y workshops");
     data.events.forEach((event) => {
-      jobHeader(event.title, event.organization, event.event_date);
-      bullet("Participé", `${event.event_type} como ${event.participation_role}. ${event.description}`);
+      entryHeader(event.title, event.organization, event.event_date, 5);
+      bullet(`${event.event_type} · ${event.participation_role}. ${event.description}`);
+      y += 2;
     });
   }
-
-  // ── IDIOMAS ─────────────────────────────────────────
-  sectionLabel("Idiomas");
-  doc.setFont("times", "normal");
-  doc.setFontSize(10);
-  doc.setTextColor(...ink);
-  doc.text("Español  ·  Nativo            Inglés  ·  Intermedio (B1)", margin, y);
-  y += 5;
-
-  // ── FRASE FIRMA ─────────────────────────────────────
-  // Place near bottom
-  const sigY = H - 22;
-  doc.setDrawColor(...accent);
-  doc.setLineWidth(0.3);
-  doc.line(margin, sigY - 6, margin + 10, sigY - 6);
-  doc.setFont("times", "italic");
-  doc.setFontSize(11);
-  doc.setTextColor(...ink);
-  doc.text("\u201CConstruyo backends que sobreviven al éxito.\u201D", margin, sigY);
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(7);
-  doc.setTextColor(...muted);
-  doc.text(spaced("— J.M.R.R."), margin, sigY + 4.5);
 
   doc.save("Jose_Manuel_Rios_Restrepo_CV.pdf");
 }

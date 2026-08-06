@@ -45,13 +45,19 @@ const technologies: Technology[] = [
 
 function useScrollAnimation(ref: React.RefObject<HTMLElement>) {
   useEffect(() => {
+    const section = ref.current;
+    if (!section) return;
+    const animatedElements = section.querySelectorAll(".animate-in-view");
     const observer = new IntersectionObserver(
-      (entries) => entries.forEach((entry) => {
-        if (entry.isIntersecting) entry.target.classList.add("visible");
-      }),
-      { threshold: 0.15 }
+      ([entry]) => {
+        if (entry?.isIntersecting) {
+          animatedElements.forEach((element) => element.classList.add("visible"));
+          observer.disconnect();
+        }
+      },
+      { root: section.closest(".chapter-track"), threshold: 0.15 }
     );
-    ref.current?.querySelectorAll(".animate-in-view").forEach((el) => observer.observe(el));
+    observer.observe(section);
     return () => observer.disconnect();
   }, [ref]);
 }

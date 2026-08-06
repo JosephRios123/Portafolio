@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { ArrowDown, ExternalLink, Mail, Download } from "lucide-react";
 import { generateCV } from "@/lib/generateCV";
+import { toast } from "sonner";
 
 const TYPING_TEXTS = [
   "Desarrollador Backend",
@@ -82,6 +83,19 @@ function Particles() {
 
 export default function Hero() {
   const typedText = useTypewriter(TYPING_TEXTS);
+  const [downloading, setDownloading] = useState(false);
+
+  const handleDownloadCV = async () => {
+    setDownloading(true);
+    try {
+      await generateCV();
+      toast.success("CV generado correctamente");
+    } catch {
+      toast.error("No fue posible generar el CV. Intenta de nuevo.");
+    } finally {
+      setDownloading(false);
+    }
+  };
 
   return (
     <section
@@ -155,11 +169,12 @@ export default function Hero() {
             <Mail size={18} className="group-hover:scale-110 transition-transform" />
           </a>
           <button
-            onClick={() => void generateCV()}
+            onClick={() => void handleDownloadCV()}
+            disabled={downloading}
             className="group flex items-center justify-center gap-2 px-6 sm:px-8 py-3.5 sm:py-4 rounded-full border-2 border-accent/50 text-accent font-bold text-base sm:text-lg hover:border-primary hover:text-primary hover:bg-primary/5 transition-all duration-300 active:scale-95 min-h-[48px]"
           >
-            Descargar CV
-            <Download size={18} className="group-hover:translate-y-0.5 transition-transform" />
+            {downloading ? "Generando..." : "Descargar CV"}
+            <Download size={18} className={downloading ? "animate-pulse" : "group-hover:translate-y-0.5 transition-transform"} />
           </button>
         </div>
 

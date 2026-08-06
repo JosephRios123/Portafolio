@@ -1,16 +1,14 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Lock, Mail, Loader2, ShieldCheck } from "lucide-react";
+import { AlertCircle, Lock, Mail, Loader2, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 
-const ADMIN_EMAIL = "cresposfelices@gmail.com";
-
 export default function AdminLogin() {
   const navigate = useNavigate();
-  const { session, isAdmin, loading } = useAdminAuth();
-  const [email, setEmail] = useState(ADMIN_EMAIL);
+  const { session, isAdmin, loading, authError } = useAdminAuth();
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
 
@@ -25,36 +23,12 @@ export default function AdminLogin() {
     e.preventDefault();
     setBusy(true);
     const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (!error) {
-      toast.success("Bienvenido al panel");
-      // Redirect handled by useEffect once role is loaded
+    if (error) {
+      toast.error(error.message);
       setBusy(false);
       return;
     }
-    // First-time bootstrap for the configured admin
-    if (email === ADMIN_EMAIL) {
-      const { data: signUpData, error: signUpErr } = await supabase.auth.signUp({
-        email,
-        password,
-        options: { emailRedirectTo: `${window.location.origin}/admin` },
-      });
-      if (signUpErr) {
-        toast.error(signUpErr.message);
-        setBusy(false);
-        return;
-      }
-      if (signUpData.user) {
-        await supabase.from("user_roles").insert({ user_id: signUpData.user.id, role: "admin" });
-      }
-      const { error: loginErr } = await supabase.auth.signInWithPassword({ email, password });
-      if (loginErr) {
-        toast.error(loginErr.message);
-      } else {
-        toast.success("Cuenta admin creada");
-      }
-    } else {
-      toast.error(error.message);
-    }
+    toast.success("Credenciales verificadas");
     setBusy(false);
   };
 
@@ -74,6 +48,12 @@ export default function AdminLogin() {
         </div>
 
         <form onSubmit={handleLogin} className="glass-card rounded-2xl p-6 sm:p-8 space-y-5">
+          {authError && (
+            <div role="alert" className="flex gap-2 rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive-foreground">
+              <AlertCircle size={18} className="mt-0.5 shrink-0" aria-hidden="true" />
+              <span>{authError}</span>
+            </div>
+          )}
           <div>
             <label className="block text-sm font-semibold mb-2 text-foreground">
               <Mail size={14} className="inline mr-1.5 text-accent" /> Email
