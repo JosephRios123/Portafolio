@@ -7,18 +7,22 @@ import About from "@/components/portfolio/About";
 import Education from "@/components/portfolio/Education";
 import Skills from "@/components/portfolio/Skills";
 import Contact from "@/components/portfolio/Contact";
+import ProfessionalEvents from "@/components/portfolio/ProfessionalEvents";
+import EasterEggs from "@/components/portfolio/EasterEggs";
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-dvh bg-background text-foreground">
       <Navbar />
-      <main>
+      <EasterEggs />
+      <main id="chapters" className="chapter-track">
         <Hero />
         <Projects />
         <Experience />
         <Mindset />
         <About />
         <Education />
+        <ProfessionalEvents />
         <Skills />
         <Contact />
       </main>
