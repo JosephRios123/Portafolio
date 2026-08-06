@@ -30,7 +30,7 @@ export default function Mindset() {
     <section
       id="mindset"
       ref={sectionRef}
-      className="py-16 sm:py-20 lg:py-28 px-4 sm:px-6 lg:px-8 section-divider"
+      className="chapter-section py-16 sm:py-20 lg:py-28 px-4 sm:px-6 lg:px-8 section-divider"
       style={{
         background:
           "radial-gradient(ellipse 60% 40% at 30% 50%, hsl(187 92% 42% / 0.05) 0%, transparent 60%)",

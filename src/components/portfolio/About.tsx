@@ -1,5 +1,7 @@
 import { useEffect, useRef } from "react";
-import { Briefcase, Code2, Building2, Infinity } from "lucide-react";
+import { Briefcase, Code2, Building2, Infinity, Database, Braces, Server, Coffee, FileCode2, Terminal, Boxes, Network, CloudCog } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+import { revealEasterEgg } from "./EasterEggs";
 
 const metrics = [
   { icon: Briefcase, label: "Años de experiencia", value: "2+" },
@@ -8,17 +10,12 @@ const metrics = [
   { icon: Infinity, label: "Afición", value: "☕" },
 ];
 
-const technologies = [
-  { name: "PHP", sub: "Laravel", emoji: "🐘", color: "hsl(271 60% 60%)" },
-  { name: "C#", sub: ".NET", emoji: "🖥️", color: "hsl(262 83% 65%)" },
-  { name: "Python", sub: "Scripting", emoji: "🐍", color: "hsl(45 100% 55%)" },
-  { name: "Java", sub: "OOP", emoji: "☕", color: "hsl(27 100% 55%)" },
-  { name: "MySQL", sub: "DB", emoji: "🗄️", color: "hsl(197 71% 53%)" },
-  { name: "HTML", sub: "Markup", emoji: "🌐", color: "hsl(21 100% 55%)" },
-  { name: "CSS", sub: "Styling", emoji: "🎨", color: "hsl(217 91% 60%)" },
-  { name: "JS", sub: "ES6+", emoji: "⚡", color: "hsl(48 100% 55%)" },
-  { name: "React", sub: "Frontend", emoji: "⚛️", color: "hsl(187 92% 55%)" },
-  { name: "ASP.NET", sub: "Backend", emoji: "⚙️", color: "hsl(262 83% 65%)" },
+const technologies: { name: string; Icon: LucideIcon }[] = [
+  { name: "PHP / Laravel", Icon: FileCode2 }, { name: "C# / .NET", Icon: Braces },
+  { name: "Python", Icon: Terminal }, { name: "Java", Icon: Coffee },
+  { name: "MySQL", Icon: Database }, { name: "PostgreSQL", Icon: Server },
+  { name: "JavaScript", Icon: Code2 }, { name: "React", Icon: Boxes },
+  { name: "REST APIs", Icon: Network }, { name: "Backend Cloud", Icon: CloudCog },
 ];
 
 function useScrollAnimation(ref: React.RefObject<HTMLElement>) {
@@ -39,7 +36,7 @@ export default function About() {
   useScrollAnimation(sectionRef);
 
   return (
-    <section id="about" ref={sectionRef} className="py-20 sm:py-28 px-4 sm:px-6 section-divider">
+    <section id="about" ref={sectionRef} className="chapter-section py-20 sm:py-28 px-4 sm:px-6 section-divider">
       <div className="max-w-7xl mx-auto">
         <div className="animate-in-view flex items-center gap-3 mb-4">
           <span className="w-8 h-px gradient-bg" />
@@ -53,7 +50,7 @@ export default function About() {
         <div className="grid lg:grid-cols-2 gap-10 sm:gap-12 items-center">
           {/* Orbital tech system */}
           <div className="animate-in-view order-2 lg:order-1 flex justify-center" style={{ transitionDelay: "0.15s" }}>
-            <div className="relative w-[260px] h-[260px] xs:w-[300px] xs:h-[300px] sm:w-[340px] sm:h-[340px]">
+            <div className="relative aspect-square w-full max-w-[330px] sm:max-w-[380px]">
               {/* Orbit rings */}
               <div
                 className="absolute rounded-full"
@@ -107,8 +104,9 @@ export default function About() {
                 const angle = (i * 360) / technologies.length;
                 const rad = (angle * Math.PI) / 180;
                 // Use percentage-based positioning so orbit scales with container
-                const xPct = 50 + Math.cos(rad) * 44; // 44% radius from center
-                const yPct = 50 + Math.sin(rad) * 44;
+                const xPct = 50 + Math.cos(rad) * 42;
+                const yPct = 50 + Math.sin(rad) * 42;
+                const Icon = tech.Icon;
 
                 return (
                   <div
@@ -121,20 +119,10 @@ export default function About() {
                     }}
                   >
                     <div
-                      className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center text-base sm:text-lg transition-all duration-300 group-hover:scale-125"
-                      style={{
-                        background: `${tech.color}38`,
-                        border: `1px solid ${tech.color}30`,
-                        boxShadow: `0 0 0px ${tech.color}00`,
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.boxShadow = `0 0 20px ${tech.color}40`;
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.boxShadow = `0 0 0px ${tech.color}00`;
-                      }}
+                      className="w-10 h-10 sm:w-12 sm:h-12 rounded-md flex items-center justify-center border border-primary/25 bg-card text-accent shadow-lg transition-all duration-300 group-hover:scale-110 group-hover:border-accent/60"
+                      onDoubleClick={() => tech.name === "Backend Cloud" && revealEasterEgg("El backend también guarda secretos.")}
                     >
-                      {tech.emoji}
+                      <Icon size={20} aria-hidden="true" />
                     </div>
                     {/* Tooltip */}
                     <div className="absolute -bottom-7 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none">
@@ -147,12 +135,12 @@ export default function About() {
               })}
 
               {/* Connection lines (decorative) */}
-              <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-10" viewBox="0 0 340 340">
+              <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-10" viewBox="0 0 340 340" aria-hidden="true">
                 {technologies.map((_, i) => {
                   const angle = (i * 360) / technologies.length;
                   const rad = (angle * Math.PI) / 180;
-                  const x = 170 + Math.cos(rad) * 150;
-                  const y = 170 + Math.sin(rad) * 150;
+                  const x = 170 + Math.cos(rad) * 143;
+                  const y = 170 + Math.sin(rad) * 143;
                   return (
                     <line
                       key={i}

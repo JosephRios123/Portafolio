@@ -24,7 +24,7 @@ export default function Experience() {
     <section
       id="experience"
       ref={sectionRef}
-      className="py-16 sm:py-20 lg:py-28 px-4 sm:px-6 lg:px-8 section-divider"
+      className="chapter-section py-16 sm:py-20 lg:py-28 px-4 sm:px-6 lg:px-8 section-divider"
     >
       <div className="max-w-5xl mx-auto">
         <div className="animate-in-view flex items-center gap-3 mb-4">

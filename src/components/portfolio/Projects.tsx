@@ -24,7 +24,7 @@ export default function Projects() {
     <section
       id="projects"
       ref={sectionRef}
-      className="py-16 sm:py-20 lg:py-28 px-4 sm:px-6 lg:px-8 section-divider relative overflow-hidden"
+      className="chapter-section py-16 sm:py-20 lg:py-28 px-4 sm:px-6 lg:px-8 section-divider relative overflow-hidden"
     >
       <div
         className="absolute inset-0 pointer-events-none"

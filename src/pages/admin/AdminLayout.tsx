@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { NavLink, Outlet, useNavigate, useLocation } from "react-router-dom";
-import { Briefcase, History, Brain, GraduationCap, LogOut, ExternalLink, ShieldCheck, Menu, X, LayoutDashboard } from "lucide-react";
+import { Briefcase, History, Brain, GraduationCap, LogOut, ExternalLink, ShieldCheck, Menu, LayoutDashboard, Mic2 } from "lucide-react";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { useIsMobile } from "@/hooks/use-mobile";
 
@@ -10,6 +10,7 @@ const items = [
   { to: "/admin/experience", label: "Experiencia", icon: History },
   { to: "/admin/mindset",    label: "Mentalidad",  icon: Brain },
   { to: "/admin/formations", label: "Formación",   icon: GraduationCap },
+  { to: "/admin/events",     label: "Eventos",     icon: Mic2 },
 ];
 
 function titleFromPath(p: string) {
@@ -99,7 +100,7 @@ export default function AdminLayout() {
   );
 
   return (
-    <div className="min-h-screen flex bg-background text-foreground overflow-x-hidden">
+    <div className="min-h-dvh flex bg-background text-foreground overflow-x-hidden">
       {/* Desktop sidebar */}
       <aside
         className="hidden md:flex md:w-64 border-r border-border/60 flex-col shrink-0"

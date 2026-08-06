@@ -138,7 +138,7 @@ export default function Contact() {
   };
 
   return (
-    <section id="contact" ref={sectionRef} className="py-20 sm:py-28 px-4 sm:px-6 section-divider relative overflow-hidden">
+    <section id="contact" ref={sectionRef} className="chapter-section py-20 sm:py-28 px-4 sm:px-6 section-divider relative overflow-hidden">
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
@@ -333,7 +333,7 @@ export default function Contact() {
 
         <div className="animate-in-view mt-12 flex justify-center" style={{ transitionDelay: "0.6s" }}>
           <button
-            onClick={() => generateCV()}
+            onClick={() => void generateCV()}
             className="group inline-flex items-center gap-3 px-6 py-3 rounded-full glass-card-hover text-sm font-bold text-accent hover:text-primary transition-colors"
           >
             <Download size={16} className="group-hover:translate-y-0.5 transition-transform" />
