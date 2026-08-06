@@ -1,4 +1,6 @@
 import jsPDF from "jspdf";
+import { supabase } from "@/integrations/supabase/client";
+import type { PublicExperience, PublicFormation, PublicProfessionalEvent, PublicProject } from "@/hooks/usePublicData";
 
 /**
  * CV editorial — paleta sobria (negro profundo + acento teal #0F766E)
@@ -8,7 +10,31 @@ import jsPDF from "jspdf";
  * - Bullets con verbos de impacto en pasado
  * - Frase firma de cierre
  */
-export function generateCV() {
+type CVData = { projects: PublicProject[]; experiences: PublicExperience[]; formations: PublicFormation[]; events: PublicProfessionalEvent[] };
+
+async function loadCVData(): Promise<CVData> {
+  const [projects, experiences, bullets, formations, events] = await Promise.all([
+    supabase.from("projects").select("*").order("display_order"),
+    supabase.from("experiences").select("*").order("display_order"),
+    supabase.from("experience_bullets").select("*").order("display_order"),
+    supabase.from("formations").select("*").order("display_order"),
+    supabase.from("professional_events").select("*").order("display_order"),
+  ]);
+  const error = [projects, experiences, bullets, formations, events].find((result) => result.error)?.error;
+  if (error) throw error;
+  return {
+    projects: (projects.data ?? []) as PublicProject[],
+    experiences: (experiences.data ?? []).map((experience) => ({
+      ...experience,
+      bullets: (bullets.data ?? []).filter((bullet) => bullet.experience_id === experience.id),
+    })) as PublicExperience[],
+    formations: (formations.data ?? []) as PublicFormation[],
+    events: (events.data ?? []) as PublicProfessionalEvent[],
+  };
+}
+
+export async function generateCV() {
+  const data = await loadCVData();
   const doc = new jsPDF({ unit: "mm", format: "a4" });
   const W = 210;
   const H = 297;
@@ -71,9 +97,9 @@ export function generateCV() {
   // ── STATS ROW ───────────────────────────────────────
   y += 9;
   const stats = [
-    { num: "2+", label: "AÑOS DE EXPERIENCIA" },
-    { num: "8+", label: "TECNOLOGÍAS DOMINADAS" },
-    { num: "4",  label: "FORMACIONES CERTIFICADAS" },
+    { num: String(data.experiences.length), label: "EXPERIENCIAS" },
+    { num: String(data.projects.length), label: "PROYECTOS" },
+    { num: String(data.formations.length), label: "FORMACIONES" },
   ];
   const colW = contentW / 3;
   stats.forEach((s, i) => {
@@ -193,18 +219,20 @@ export function generateCV() {
   // ── EXPERIENCIA ─────────────────────────────────────
   sectionLabel("Experiencia");
 
-  jobHeader("Desarrollador de Software & Tester", "Visual Contact S.A.S", "Ene 2023 — Jul 2024");
-  bullet("Desarrollé", "módulos backend en PHP/Laravel para sistemas empresariales en producción.");
-  bullet("Integré",   ".NET Core 6+ con servicios Laravel, conectando ecosistemas heterogéneos.");
-  bullet("Optimicé",  "consultas y esquemas MySQL, reduciendo tiempos de respuesta en endpoints críticos.");
-  bullet("Diseñé",    "casos de prueba y documentación técnica para asegurar calidad en cada release.");
-  bullet("Colaboré",  "en equipos ágiles SCRUM con entregas continuas y revisión por pares.");
+  if (data.experiences.length === 0) bodyP("Experiencia disponible próximamente.");
+  data.experiences.forEach((experience) => {
+    jobHeader(experience.role, experience.company, `${experience.start_date} — ${experience.is_current ? "Actualidad" : experience.end_date ?? ""}`);
+    experience.bullets.forEach((entry) => bullet("Impulsé", entry.text));
+    y += 1.5;
+  });
 
-  y += 1.5;
-  jobHeader("Soporte y Mantenimiento de Equipos HP", "Soporte Caribe S.A.S", "Feb 2025 — Jun 2025");
-  bullet("Resolví",   "incidencias técnicas críticas en entornos corporativos de alta exigencia.");
-  bullet("Automaticé", "protocolos de formateo seguro con KillDisk y validación de integridad.");
-  bullet("Mantuve",   "más de 30 equipos EliteBook G9/G10 en operación continua.");
+  if (data.projects.length) {
+    sectionLabel("Proyectos");
+    data.projects.forEach((project) => {
+      jobHeader(project.name, project.tags.join(" · "), project.country ?? "");
+      bullet("Construí", project.description);
+    });
+  }
 
   // ── STACK TÉCNICO ───────────────────────────────────
   sectionLabel("Stack técnico");
@@ -241,23 +269,25 @@ export function generateCV() {
 
   // ── FORMACIÓN ───────────────────────────────────────
   sectionLabel("Formación");
-  const forms = [
-    ["Tecnólogo en Análisis y Desarrollo de Software", "SENA", "2022 — 2024"],
-    ["Programación en JAVA", "Politécnico de Colombia", "2025"],
-    ["Introducción a la IA Generativa", "Google Cloud · Coursera", "2025"],
-    ["Operador Medios Tecnológicos", "AVIPS LTDA", "2026"],
-  ];
-  forms.forEach(([t, inst, per]) => {
+  data.formations.forEach((formation) => {
     doc.setFont("helvetica", "bold");
     doc.setFontSize(9.5);
     doc.setTextColor(...ink);
-    doc.text(t, margin, y);
+    doc.text(formation.course, margin, y);
     doc.setFont("times", "italic");
     doc.setFontSize(9);
     doc.setTextColor(...muted);
-    doc.text(`${inst}  ·  ${per}`, W - margin, y, { align: "right" });
+    doc.text(`${formation.institution}  ·  ${formation.obtained_date ?? formation.status}`, W - margin, y, { align: "right" });
     y += 4.8;
   });
+
+  if (data.events.length) {
+    sectionLabel("Conferencias y workshops");
+    data.events.forEach((event) => {
+      jobHeader(event.title, event.organization, event.event_date);
+      bullet("Participé", `${event.event_type} como ${event.participation_role}. ${event.description}`);
+    });
+  }
 
   // ── IDIOMAS ─────────────────────────────────────────
   sectionLabel("Idiomas");
