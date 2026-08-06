@@ -1,133 +1,116 @@
+# Evolución final del portafolio
 
-# Optimización integral del portafolio
+## Objetivo
 
-## 1. Limpieza total de datos
+Convertir el portafolio en una experiencia por capítulos horizontales, mantener todo el contenido profesional sincronizado con el CV, ampliar Formación con eventos y reforzar SEO, accesibilidad, rendimiento y detalle creativo sin romper el panel ni los flujos actuales.
 
-- Borrar el proyecto `SneakVault` de la tabla `projects`.
-- Las tablas `experiences`, `experience_bullets`, `formations`, `mindset_principles` ya están vacías.
-- Eliminar todos los arrays hardcoded de `Education.tsx`, `Experience.tsx`, `Mindset.tsx`. Las secciones públicas mostrarán **estados vacíos elegantes** ("Próximamente — contenido en construcción") cuando no haya datos en la DB.
-- `Skills.tsx` se mantiene hardcoded (no había tabla y tú elegiste no crearla).
+## 1. Navegación horizontal por capítulos
 
-## 2. Cambios de esquema (migración)
+- Convertir las 8 secciones públicas en capítulos de ancho completo dentro de un contenedor nativo `scroll-snap` horizontal.
+- Cada capítulo ocupará el viewport (`100dvw × 100dvh`) y tendrá scroll vertical interno cuando su contenido supere la altura disponible; así no se recortan grids, formularios ni acordeones.
+- Soportar rueda, trackpad, swipe táctil, flechas del teclado y controles anterior/siguiente sin reemplazar el comportamiento nativo con gestos frágiles.
+- Sincronizar el capítulo activo con el hash de la URL para conservar enlaces directos como `#projects`.
+- Adaptar Navbar y CTAs del Hero al nuevo controlador, manteniendo sus `href` como fallback accesible.
+- Añadir indicadores de progreso con nombre, posición, `aria-current` y botones de al menos 44×44 px.
+- Actualizar el mensaje del Hero a “Desliza para explorar” y usar una señal lateral.
+- En móvil, conservar el swipe horizontal y permitir el desplazamiento vertical dentro del capítulo sin interferir con el menú o el teclado del formulario.
 
-```text
-projects
-  + country         text         (junto con datos existentes)
-  + icon_emoji      text         (icono del registro)
-  + icon_image_url  text         (alternativa a emoji)
-  alter description: límite 200 validado en cliente
+## 2. CV inteligente y sincronizado
 
-formations
-  + country              text
-  + icon_emoji           text
-  + icon_image_url       text
-  + certificate_url      text     (PDF o imagen subida)
-  + certificate_mime     text     ('application/pdf' | 'image/...')
+- Reescribir `generateCV` para recibir un modelo `CVData` en vez de contener información profesional hardcodeada.
+- Crear un agregador que consulte en paralelo proyectos, experiencia con logros, formación y conferencias/workshops; combinará esos datos con el perfil, habilidades, idiomas y contacto compartidos por la interfaz pública.
+- Extraer el contenido personal que hoy está duplicado en Hero, About, Skills, Contact y PDF a una única fuente tipada del frontend.
+- Incluir automáticamente todas las secciones que tengan datos y omitir limpiamente las vacías.
+- Mantener PDF vectorial, texto seleccionable, una sola columna y orden lineal ATS-safe.
+- Implementar paginación real, encabezados repetibles y protección contra bloques cortados cuando el contenido administrado crezca.
+- Mostrar estado de preparación en los botones de descarga y manejar fallos sin generar un PDF incompleto.
 
-mindset_principles
-  + icon_emoji           text
-  + icon_image_url       text
-```
+## 3. Mentalidad: contenido inicial publicado
 
-Nuevo bucket público de Storage: `certificates` (PDF/JPG/PNG, <2MB) con políticas RLS:
-- SELECT público
-- INSERT/UPDATE/DELETE solo admin (`has_role(auth.uid(),'admin')`)
+- Insertar 10 principios profesionales editables sobre aprendizaje continuo, calidad, ownership, comunicación, resiliencia, liderazgo, simplicidad, seguridad, colaboración y mejora basada en feedback.
+- Publicarlos directamente en `mindset_principles`, con categoría, descripción, icono y orden coherente.
+- Mantenerlos como registros normales del CRUD para que puedan editarse, reordenarse o eliminarse desde el panel.
+- Diseñar el grid público con ritmo asimétrico controlado, sin alterar el orden semántico ni provocar desbordes.
 
-Mismas políticas se añadirán al bucket `project-previews` para uniformidad.
+## 4. Esfera tecnológica de Sobre Mí
 
-## 3. CRUD endurecido (validaciones estrictas)
+- Sustituir la mezcla actual de porcentajes y coordenadas fijas por un único sistema radial responsivo.
+- Integrar el icono coherente de la plataforma backend solicitada y reemplazar emojis por marcas visuales consistentes.
+- Usar dos anillos cuando la cantidad de tecnologías lo requiera, con posiciones deterministas y sin colisiones.
+- Mantener todos los nodos dentro del contenedor en 320 px; en pantallas compactas reducir movimiento y densidad sin convertirlo en una lista desconectada del concepto orbital.
+- Hacer cada tecnología accesible por teclado, con nombre visible al foco/hover y animaciones desactivables.
 
-Crear `src/lib/validation.ts` con esquemas **zod** reutilizables:
+## 5. Formación, conferencias y workshops
 
-- `projectSchema`: name (1-80), description (1-200), tags (1-10, cada uno ≤24), link (URL válida o vacío), image_url (URL).
-- `formationSchema`: course/institution obligatorios, ciudad/país, status enum, fecha (YYYY o "Mes YYYY").
-- `mindsetSchema`: phrase (1-120), description (1-400), categoría enum.
-- `experienceSchema`: role/company/start_date obligatorios, end_date requerido si `is_current=false`.
-- `iconSchema`: exactamente uno de emoji o imagen, no ambos.
-- `imageFileSchema`: `type ∈ {jpeg,png,webp}`, `size ≤ 2MB`.
-- `certificateFileSchema`: `type ∈ {pdf,jpeg,png}`, `size ≤ 2MB`.
+- Crear una tabla pública `professional_events` con título, organización, tipo, rol, fecha, ubicación, descripción, enlace, icono, certificado y orden.
+- Aplicar permisos públicos de lectura, administración autenticada mediante rol, RLS y grants explícitos.
+- Añadir la gestión de conferencias/workshops como segunda pestaña del admin de Formación, reutilizando validación, selector de icono, subida de certificado y confirmación de borrado.
+- Ampliar la sección pública con tabs Formación / Conferencias y un timeline-acordeón; el certificado seguirá abriéndose en el visor accesible existente.
+- Añadir hook público, skeletons, estado vacío y tipos para estos eventos.
 
-Reemplazar las validaciones manuales actuales en los 4 admins por `schema.safeParse()` con mensajes inline (no solo toast).
+## 6. Easter eggs accesibles
 
-### Componente `IconPicker` (`src/components/admin/IconPicker.tsx`)
+- Convertir dos detalles discretos —las iniciales del logo y un carácter del Hero— en activadores operables por click y teclado, con nombre accesible sin alterar el texto indexable.
+- Mostrar “¡Easter Egg encontrado!” mediante un estado anunciado por lector de pantalla y una microanimación breve.
+- Añadir un tercer secreto por secuencia de teclado que active un mensaje técnico, sin capturar teclas cuando el usuario escribe en formularios.
+- Registrar secretos descubiertos solo en la sesión del navegador; no requieren cuenta ni base de datos.
+- Respetar `prefers-reduced-motion` y no cargar librerías de confeti o animación pesadas.
 
-- Tabs: "Emoji" / "Imagen".
-- Tab Emoji: grid curado de ~80 emojis frecuentes (graduación, código, herramientas, banderas) + input manual.
-- Tab Imagen: subida a `certificates` o bucket dedicado `icons` con preview circular 64×64 y botón "Quitar".
-- Devuelve `{ icon_emoji, icon_image_url }` mutuamente excluyentes. Se usa en `FormationsAdmin` y `MindsetAdmin`.
+## 7. SEO, accesibilidad y rendimiento
 
-### Componente `CertificateUpload` (`src/components/admin/CertificateUpload.tsx`)
+### SEO
+- Corregir idioma del documento a español y reemplazar metadatos genéricos por título, descripción, Open Graph y Twitter específicos.
+- Añadir canonical del dominio publicado, JSON-LD `Person/ProfilePage`, sitemap y referencia desde `robots.txt`.
+- Bloquear `/admin` para rastreo y marcar las vistas administrativas como `noindex`.
+- Mantener un solo H1 y jerarquía H2/H3 coherente en todos los capítulos.
 
-- Acepta PDF/JPG/PNG ≤2MB.
-- Preview inline: imagen → thumbnail; PDF → tarjeta con icono + nombre + "Abrir".
-- Estados: idle / uploading / success / error con feedback visual.
+### Accesibilidad AA
+- Añadir `prefers-reduced-motion` global y eliminar animación infinita para quienes lo soliciten.
+- Completar `aria-controls`, foco y retorno de foco del menú móvil.
+- Vincular errores del formulario con `aria-invalid`/`aria-describedby` y anunciar estados de éxito/error.
+- Mantener navegación completa por teclado, foco visible, contraste AA y objetivos táctiles de 44 px.
+- Conservar el orden natural del DOM para lectores de pantalla; los capítulos no activos no se ocultarán artificialmente.
 
-## 4. Secciones públicas conectadas a Supabase
+### Rendimiento
+- Hacer deterministas y memoizadas las partículas del Hero para evitar repintados en cada carácter del typewriter.
+- Reducir partículas en móvil y eliminarlas con reduced motion.
+- Mantener imágenes diferidas con `loading="lazy"` y `decoding="async"`; reservar dimensiones para evitar CLS.
+- Cargar de forma diferida las secciones públicas posteriores al primer capítulo con fallbacks de altura estable.
+- Evitar nuevas dependencias pesadas; usar APIs nativas, componentes existentes y PDF vectorial.
 
-Crear hook genérico `src/hooks/usePublicData.ts`:
+## 8. Validación de producción
 
-```text
-useProjects()    → projects ordenados
-useExperiences() → experiences + bullets (join manual)
-useFormations()  → formations
-useMindset()     → mindset_principles
-```
+- Probar capítulos, hashes, rueda, trackpad, swipe y teclado en 320, 390, 768, 1280 y 1440 px.
+- Verificar menú, formulario, certificados, descargas de CV y panel administrativo después del cambio de layout.
+- Ejecutar pruebas automatizadas selectivas y una revisión visual con navegador en desktop y móvil.
+- Auditar consola, red, foco, contraste, overflow, reduced motion, estructura semántica y enlaces profundos.
+- Generar un CV con datos reales y comprobar visualmente todas sus páginas antes de darlo por terminado.
+- Ejecutar el escaneo SEO del proyecto una vez aplicados los cambios y dejar los hallazgos corregidos listos para revalidación.
 
-Cada hook expone `{ data, loading, error }`. Loading muestra **skeletons** (componente `ui/skeleton` ya existe). Estado vacío muestra el card "Próximamente" estilizado.
-
-Refactor de:
-
-- **`Projects.tsx`**: si `data.length === 0` → mantiene la card actual de "Próximamente". Si hay datos → grid responsive (`1 / sm:2 / lg:3`) con tarjetas: imagen lazy (`loading="lazy" decoding="async"`), título, descripción 2 líneas, tags como badges, botón "Ver proyecto" si hay link. Hover lift suave.
-- **`Experience.tsx`**: timeline alimentado por DB con bullets. Empty state propio.
-- **`Education.tsx`**: accordions alimentados por DB; si hay `certificate_url` → botón "Ver certificado" abre **modal** (Dialog shadcn) con `<embed>` para PDF o `<img>` para imagen. Icono usa `icon_image_url` (en círculo) o `icon_emoji`.
-- **`Mindset.tsx`**: tarjetas alimentadas por DB. Categoría → color. Icono igual que Education.
-
-Cuando guardas/eliminas en el admin, las secciones públicas se actualizan al recargar (sin realtime; suficiente para portafolio).
-
-## 5. Responsive / UX / Performance
-
-### Responsive (mobile <768, tablet 768-1024, desktop >1024)
-- Auditar y unificar paddings: `px-4 sm:px-6 lg:px-8`, `py-16 sm:py-20 lg:py-28`.
-- Grids canónicos: cards `grid gap-5 sm:grid-cols-2 lg:grid-cols-3`.
-- Tipografía fluida estandarizada en h2: `text-3xl sm:text-4xl lg:text-5xl`.
-- Hero CTAs: en mobile stack vertical full-width, en sm+ fila centrada (corregir 3 botones que hoy se aprietan).
-- Eliminar `min-w` que generen overflow horizontal lateral.
-
-### UX/UI
-- Skeletons mientras carga DB (no spinners en sección pública).
-- Hover/focus visibles en todas las cards (`focus-visible:ring-2 ring-accent`).
-- Transiciones uniformes 200-300ms; quitar las que excedan 500ms en hover.
-- Toasts `sonner` consistentes para todas las acciones admin (success/error).
-- Confirmación de borrado con `AlertDialog` shadcn en lugar de `confirm()` nativo en los 4 admins.
-
-### Performance
-- `loading="lazy"` y `decoding="async"` en todas las `<img>` de proyectos/iconos/certificados.
-- `React.lazy` + `Suspense` para las páginas admin (`/admin/*`) — no se cargan en el bundle público.
-- Memoización de listas grandes con `useMemo` cuando ordenamos.
-- Validar tamaño de imagen antes de subir (rechaza >2MB en cliente, ahorra round-trip).
-
-## 6. Tareas concretas
+## Detalles técnicos
 
 ```text
-Migración SQL          → 1 migración (drop SneakVault + alter tables + bucket certificates + RLS)
-src/lib/validation.ts  → nuevo (zod schemas)
-src/hooks/usePublicData.ts → nuevo
-src/components/admin/IconPicker.tsx       → nuevo
-src/components/admin/CertificateUpload.tsx → nuevo
-src/components/admin/ConfirmDelete.tsx    → nuevo (AlertDialog wrapper)
-src/components/portfolio/CertificateModal.tsx → nuevo
-src/pages/admin/ProjectsAdmin.tsx     → zod + AlertDialog + lazy
-src/pages/admin/ExperienceAdmin.tsx   → zod + AlertDialog
-src/pages/admin/FormationsAdmin.tsx   → zod + IconPicker + CertificateUpload + país
-src/pages/admin/MindsetAdmin.tsx      → zod + IconPicker
-src/components/portfolio/Projects.tsx   → conectar a useProjects()
-src/components/portfolio/Experience.tsx → conectar a useExperiences()
-src/components/portfolio/Education.tsx  → conectar a useFormations() + modal cert
-src/components/portfolio/Mindset.tsx    → conectar a useMindset()
-src/App.tsx → React.lazy en rutas /admin
+Index
+└── HorizontalPortfolio
+    ├── Navbar + progreso
+    └── scroll-snap x
+        ├── Hero
+        ├── Projects
+        ├── Experience
+        ├── Mindset
+        ├── About
+        ├── Education + Events
+        ├── Skills
+        └── Contact
+
+CVData
+├── perfil/contacto/habilidades compartidos
+├── projects
+├── experiences + bullets
+├── formations
+└── professional_events
 ```
 
-## Qué NO se toca
-- Hero, Navbar, About (orbital), Skills, Contact: ya están finos tras la corrección anterior.
-- Auth flow, AdminLayout, Dashboard: funcionan correctamente.
-- Estética, paleta, glassmorphism, animaciones: se preservan al 100%.
+- La migración de `professional_events` incluirá tabla, grants, RLS, políticas, trigger de `updated_at` e índices de orden/fecha.
+- Los principios son datos, por lo que se insertarán mediante la operación de datos correspondiente, no dentro de la migración estructural.
+- La advertencia de refs observada en desarrollo proviene del etiquetador visual del entorno, no de los componentes funcionales; se validará el build de producción sin modificar componentes correctos para ocultarla.
