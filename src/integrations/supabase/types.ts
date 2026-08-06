@@ -172,6 +172,63 @@ export type Database = {
         }
         Relationships: []
       }
+      professional_events: {
+        Row: {
+          certificate_mime: string | null
+          certificate_url: string | null
+          created_at: string
+          description: string
+          display_order: number
+          event_date: string
+          event_type: string
+          icon_emoji: string | null
+          icon_image_url: string | null
+          id: string
+          link: string | null
+          location: string | null
+          organization: string
+          participation_role: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          certificate_mime?: string | null
+          certificate_url?: string | null
+          created_at?: string
+          description: string
+          display_order?: number
+          event_date: string
+          event_type: string
+          icon_emoji?: string | null
+          icon_image_url?: string | null
+          id?: string
+          link?: string | null
+          location?: string | null
+          organization: string
+          participation_role: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          certificate_mime?: string | null
+          certificate_url?: string | null
+          created_at?: string
+          description?: string
+          display_order?: number
+          event_date?: string
+          event_type?: string
+          icon_emoji?: string | null
+          icon_image_url?: string | null
+          id?: string
+          link?: string | null
+          location?: string | null
+          organization?: string
+          participation_role?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       projects: {
         Row: {
           country: string | null
