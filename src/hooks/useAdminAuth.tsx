@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { createContext, useContext, useEffect, useRef, useState, ReactNode } from "react";
 import type { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -7,6 +7,7 @@ interface AdminAuthCtx {
   user: User | null;
   isAdmin: boolean;
   loading: boolean;
+  authError: string | null;
   signOut: () => Promise<void>;
 }
 
@@ -15,6 +16,7 @@ const Ctx = createContext<AdminAuthCtx>({
   user: null,
   isAdmin: false,
   loading: true,
+  authError: null,
   signOut: async () => {},
 });
 
@@ -23,54 +25,76 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
   const [isAdmin, setIsAdmin] = useState(false);
   const [sessionLoading, setSessionLoading] = useState(true);
   const [roleLoading, setRoleLoading] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
+  const validationId = useRef(0);
 
   useEffect(() => {
-    const checkRole = async (uid: string) => {
+    const validateSession = async (nextSession: Session | null) => {
+      const currentValidation = ++validationId.current;
+      setSession(nextSession);
+      setAuthError(null);
+
+      if (!nextSession) {
+        setIsAdmin(false);
+        setRoleLoading(false);
+        setSessionLoading(false);
+        return;
+      }
+
       setRoleLoading(true);
-      const { data } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", uid)
-        .eq("role", "admin")
-        .maybeSingle();
-      setIsAdmin(!!data);
-      setRoleLoading(false);
+      try {
+        const { data: userData, error: userError } = await supabase.auth.getUser();
+        if (userError || !userData.user || userData.user.id !== nextSession.user.id) {
+          throw new Error("Invalid session");
+        }
+
+        const { data, error } = await supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", userData.user.id)
+          .eq("role", "admin")
+          .maybeSingle();
+        if (error) throw error;
+        if (currentValidation === validationId.current) setIsAdmin(Boolean(data));
+      } catch {
+        if (currentValidation === validationId.current) {
+          setIsAdmin(false);
+          setAuthError("No se pudieron verificar los permisos del panel. Intenta de nuevo.");
+        }
+      } finally {
+        if (currentValidation === validationId.current) {
+          setRoleLoading(false);
+          setSessionLoading(false);
+        }
+      }
     };
 
     const { data: sub } = supabase.auth.onAuthStateChange((_event, sess) => {
-      setSession(sess);
-      if (sess?.user) {
-        setRoleLoading(true);
-        // Defer to avoid auth deadlock
-        setTimeout(() => checkRole(sess.user.id), 0);
-      } else {
-        setIsAdmin(false);
-        setRoleLoading(false);
-      }
+      // Defer network calls until the auth callback releases its internal lock.
+      setTimeout(() => void validateSession(sess), 0);
     });
 
     supabase.auth.getSession().then(({ data: { session: sess } }) => {
-      setSession(sess);
-      if (sess?.user) {
-        checkRole(sess.user.id).finally(() => setSessionLoading(false));
-      } else {
-        setSessionLoading(false);
-      }
+      void validateSession(sess);
     });
 
-    return () => sub.subscription.unsubscribe();
+    return () => {
+      validationId.current += 1;
+      sub.subscription.unsubscribe();
+    };
   }, []);
 
   const signOut = async () => {
     await supabase.auth.signOut();
     setSession(null);
     setIsAdmin(false);
+    setAuthError(null);
   };
 
   const loading = sessionLoading || (!!session && roleLoading);
 
   return (
-    <Ctx.Provider value={{ session, user: session?.user ?? null, isAdmin, loading, signOut }}>
+    <Ctx.Provider value={{ session, user: session?.user ?? null, isAdmin, loading, authError, signOut }}>
       {children}
     </Ctx.Provider>
   );
