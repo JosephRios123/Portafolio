@@ -12,6 +12,24 @@ const STACK = [
   { category: "Metodologías", items: ["SCRUM", "Testing y QA", "Clean Code", "Pair Programming", "Code Review"] },
 ];
 
+const neutralizeExperienceText = (text: string) => {
+  const replacements: Array<[RegExp, string]> = [
+    [/^Impulsé\s+/i, "Implementación de "],
+    [/^Construí\s+/i, "Construcción de "],
+    [/^Lideré\s+/i, "Coordinación de "],
+    [/^Desarrollé\s+/i, "Desarrollo de "],
+    [/^Participé en\s+/i, "Participación en "],
+    [/^Realicé pruebas\s+/i, "Pruebas "],
+    [/^Realicé\s+/i, "Ejecución de "],
+    [/^Brindo soporte\s+/i, "Soporte "],
+    [/^Realizo formateos\s+/i, "Formateo "],
+    [/^Llevo a cabo mantenimiento\s+/i, "Mantenimiento "],
+    [/^Instalo y actualizo\s+/i, "Instalación y actualización de "],
+    [/^Me destaco por resolver\s+/i, "Resolución de "],
+  ];
+  return replacements.reduce((result, [pattern, replacement]) => result.replace(pattern, replacement), text);
+};
+
 async function loadCVData(): Promise<CVData> {
   const [projects, experiences, bullets, formations, events] = await Promise.all([
     supabase.from("projects").select("*").order("display_order"),
@@ -182,7 +200,7 @@ export async function generateCV() {
   if (data.experiences.length === 0) bodyParagraph("Experiencia profesional disponible próximamente.");
   data.experiences.forEach((experience) => {
     entryHeader(experience.role, experience.company, `${experience.start_date} — ${experience.is_current ? "Actualidad" : experience.end_date ?? ""}`, experience.bullets.length ? 5 : 0);
-    experience.bullets.forEach((entry) => bullet(entry.text));
+    experience.bullets.forEach((entry) => bullet(neutralizeExperienceText(entry.text)));
     y += 2;
   });
 
@@ -198,21 +216,22 @@ export async function generateCV() {
   sectionLabel("Stack técnico");
   STACK.forEach((row) => stackRow(row.category, row.items));
 
-  sectionLabel("Formación");
-  if (data.formations.length === 0) bodyParagraph("Formación disponible próximamente.");
-  data.formations.forEach((formation) => {
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(9.5);
-    const titleLines = doc.splitTextToSize(formation.course, contentWidth * 0.57) as string[];
-    ensureSpace(Math.max(6, titleLines.length * 4.2));
-    doc.setTextColor(...ink);
-    doc.text(titleLines, margin, y);
-    doc.setFont("times", "italic");
-    doc.setFontSize(9);
-    doc.setTextColor(...muted);
-    doc.text(`${formation.institution}  ·  ${formation.obtained_date ?? formation.status}`, pageWidth - margin, y, { align: "right", maxWidth: contentWidth * 0.39 });
-    y += Math.max(5, titleLines.length * 4.2);
-  });
+  if (data.formations.length > 0) {
+    sectionLabel("Formación");
+    data.formations.forEach((formation) => {
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9.5);
+      const titleLines = doc.splitTextToSize(formation.course, contentWidth * 0.57) as string[];
+      ensureSpace(Math.max(6, titleLines.length * 4.2));
+      doc.setTextColor(...ink);
+      doc.text(titleLines, margin, y);
+      doc.setFont("times", "italic");
+      doc.setFontSize(9);
+      doc.setTextColor(...muted);
+      doc.text(`${formation.institution}  ·  ${formation.obtained_date ?? formation.status}`, pageWidth - margin, y, { align: "right", maxWidth: contentWidth * 0.39 });
+      y += Math.max(5, titleLines.length * 4.2);
+    });
+  }
 
   if (data.events.length > 0) {
     sectionLabel("Conferencias y workshops");
