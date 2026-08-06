@@ -33,9 +33,10 @@ export default function EventsAdmin() {
     const result = eventSchema.safeParse(editing);
     if (!result.success) { setErrors(flattenZodErrors(result)); toast.error("Revisa los campos"); return; }
     setSaving(true);
-    const payload = { ...editing, id: undefined, location: editing.location || null, link: editing.link || null };
-    const { error } = editing.id
-      ? await supabase.from("professional_events").update(payload).eq("id", editing.id)
+    const { id, ...values } = editing;
+    const payload = { ...values, location: editing.location || null, link: editing.link || null };
+    const { error } = id
+      ? await supabase.from("professional_events").update(payload).eq("id", id)
       : await supabase.from("professional_events").insert(payload);
     if (error) toast.error(error.message); else { toast.success("Evento guardado"); setEditing(null); await load(); }
     setSaving(false);
