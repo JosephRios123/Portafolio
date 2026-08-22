@@ -140,3 +140,42 @@ export const useProfessionalEvents = () =>
     if (error) throw error;
     return (data ?? []) as PublicProfessionalEvent[];
   });
+
+export type OrbitalTechnology = {
+  id: string;
+  name: string;
+  category: string;
+  icon_name: string;
+  color: string | null;
+  description: string;
+  display_order: number;
+  is_active: boolean;
+};
+
+export type OrbitalCoreConfig = {
+  id: string;
+  label: string;
+  status_text: string;
+  icon_name: string;
+};
+
+export const useProfileTechnologies = () =>
+  useFetch<OrbitalTechnology>(async () => {
+    const { data, error } = await supabase
+      .from("profile_technologies")
+      .select("*")
+      .eq("is_active", true)
+      .order("display_order")
+      .order("name");
+    if (error) throw error;
+    return (data ?? []) as OrbitalTechnology[];
+  });
+
+export const useProfileCore = () => {
+  const { data, loading, error } = useFetch<OrbitalCoreConfig>(async () => {
+    const { data, error } = await supabase.from("profile_core").select("*").limit(1);
+    if (error) throw error;
+    return (data ?? []) as OrbitalCoreConfig[];
+  });
+  return { core: data[0] ?? null, loading, error };
+};
