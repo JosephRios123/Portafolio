@@ -321,6 +321,22 @@
 .tech-hub__core span { display: flex; align-items: center; gap: 0.25rem; font-size: clamp(0.43rem, 1.6vw, 0.58rem); color: hsl(var(--accent)); }
 .tech-hub__core span svg { width: 0.65rem; height: 0.65rem; }
 
+.tech-hub__rotor {
+  position: absolute;
+  inset: 0;
+  animation: orbit-rotate 320s linear infinite;
+}
+
+.tech-hub__node-spin {
+  position: absolute;
+  animation: orbit-rotate-rev 320s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tech-hub__rotor,
+  .tech-hub__node-spin { animation: none; }
+}
+
 .tech-hub__node-position {
   position: absolute;
   width: 0;
@@ -340,12 +356,30 @@
   border: 1px solid hsl(var(--primary) / 0.34);
   border-radius: 0.375rem;
   background: hsl(var(--card) / 0.96);
-  color: hsl(var(--accent));
+  color: var(--node-accent, hsl(var(--accent)));
   box-shadow: 0 7px 24px hsl(var(--background) / 0.65);
-  transition: border-color 180ms ease, box-shadow 180ms ease, scale 180ms ease, color 180ms ease;
+  transition: border-color 180ms ease, box-shadow 180ms ease, scale 180ms ease, color 180ms ease, opacity 180ms ease;
+  animation: node-appear 420ms ease both;
 }
 
+.tech-hub__node[data-dimmed="true"] { opacity: 0.5; }
+.tech-hub__line[data-active="true"] { stroke: hsl(var(--accent) / 0.75); stroke-width: 0.4; stroke-dasharray: none; }
+.tech-hub__tooltip-cat {
+  display: block;
+  margin-top: 0.15rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: hsl(var(--accent));
+}
+
+@keyframes orbit-rotate { to { rotate: 360deg; } }
+@keyframes orbit-rotate-rev { to { rotate: -360deg; } }
+@keyframes node-appear { from { opacity: 0; scale: 0.6; } }
+
 .tech-hub__node svg { width: 43%; height: 43%; }
+
 .tech-hub__node:hover,
 .tech-hub__node:focus-visible,
 .tech-hub__node[aria-pressed="true"] {

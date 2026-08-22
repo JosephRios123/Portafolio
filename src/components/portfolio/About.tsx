@@ -1,47 +1,9 @@
-import { useEffect, useRef, useState } from "react";
-import {
-  Activity,
-  Atom,
-  Briefcase,
-  Braces,
-  Building2,
-  Cloud,
-  Code2,
-  Cpu,
-  Database,
-  DatabaseZap,
-  Infinity,
-  PanelsTopLeft,
-  ServerCog,
-  Terminal,
-} from "lucide-react";
-import type { LucideIcon } from "lucide-react";
-
-const metrics = [
-  { icon: Briefcase, label: "Años de experiencia", value: "2+" },
-  { icon: Code2, label: "Tecnologías dominadas", value: "9+" },
-  { icon: Building2, label: "Empresas", value: "2" },
-  { icon: Infinity, label: "Afición", value: "☕" },
-];
-
-type Technology = {
-  name: string;
-  description: string;
-  Icon: LucideIcon;
-};
-
-const technologies: Technology[] = [
-  { name: "React", description: "Interfaces modulares y experiencias de alto rendimiento.", Icon: Atom },
-  { name: "TypeScript", description: "Contratos sólidos y código seguro a escala.", Icon: Braces },
-  { name: "JavaScript", description: "Lógica moderna para productos web mantenibles.", Icon: Code2 },
-  { name: "Node.js", description: "Servicios asíncronos y herramientas del lado servidor.", Icon: Cpu },
-  { name: "Supabase", description: "Datos, autenticación y almacenamiento integrados.", Icon: DatabaseZap },
-  { name: "Cloud", description: "Despliegue y operación de soluciones escalables.", Icon: Cloud },
-  { name: "Database", description: "Modelado relacional, consultas y optimización.", Icon: Database },
-  { name: "Backend", description: "APIs robustas, reglas de negocio y arquitectura limpia.", Icon: ServerCog },
-  { name: "UI/UX", description: "Interfaces claras con foco en accesibilidad y uso.", Icon: PanelsTopLeft },
-  { name: "Terminal", description: "Automatización, diagnóstico y flujos de desarrollo.", Icon: Terminal },
-];
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Briefcase, Building2, Code2, Infinity as InfinityIcon } from "lucide-react";
+import { useProfileCore, useProfileTechnologies, type OrbitalTechnology } from "@/hooks/usePublicData";
+import { getTechIcon } from "@/lib/techIcons";
+import OrbitalSystem from "./orbital/OrbitalSystem";
+import { Skeleton } from "@/components/ui/skeleton";
 
 function useScrollAnimation(ref: React.RefObject<HTMLElement>) {
   useEffect(() => {
@@ -64,8 +26,24 @@ function useScrollAnimation(ref: React.RefObject<HTMLElement>) {
 
 export default function About() {
   const sectionRef = useRef<HTMLElement>(null);
-  const [activeTechnology, setActiveTechnology] = useState(technologies[0]);
+  const { data: technologies, loading } = useProfileTechnologies();
+  const { core } = useProfileCore();
+  const [activeId, setActiveId] = useState<string | null>(null);
   useScrollAnimation(sectionRef);
+
+  const active: OrbitalTechnology | null = useMemo(
+    () => technologies.find((t) => t.id === activeId) ?? technologies[0] ?? null,
+    [technologies, activeId]
+  );
+
+  const metrics = [
+    { icon: Briefcase, label: "Años de experiencia", value: "2+" },
+    { icon: Code2, label: "Tecnologías dominadas", value: `${technologies.length || 0}+` },
+    { icon: Building2, label: "Empresas", value: "2" },
+    { icon: InfinityIcon, label: "Afición", value: "☕" },
+  ];
+
+  const ActiveIcon = getTechIcon(active?.icon_name);
 
   return (
     <section id="about" ref={sectionRef} className="chapter-section section-divider px-4 py-20 sm:px-6 sm:py-24">
@@ -81,50 +59,20 @@ export default function About() {
 
         <div className="grid gap-5 lg:grid-cols-12 lg:items-stretch">
           <div className="animate-in-view order-2 min-w-0 lg:order-1 lg:col-span-5" style={{ transitionDelay: "0.15s" }}>
-            <div className="tech-hub" aria-label="Mapa orbital de tecnologías">
-              <div className="tech-hub__ambient" aria-hidden="true" />
-              <svg className="tech-hub__geometry" viewBox="0 0 100 100" aria-hidden="true">
-                <circle cx="50" cy="50" r="39" className="tech-hub__ring" />
-                <circle cx="50" cy="50" r="27" className="tech-hub__ring tech-hub__ring--inner" />
-                {technologies.map((_, index) => {
-                  const angle = (index * 360) / technologies.length - 90;
-                const rad = (angle * Math.PI) / 180;
-                  return <line key={index} x1="50" y1="50" x2={50 + Math.cos(rad) * 39} y2={50 + Math.sin(rad) * 39} className="tech-hub__line" />;
-                })}
-              </svg>
-
-              <div className="tech-hub__core">
-                <div className="tech-hub__core-icon"><Cpu aria-hidden="true" /></div>
-                <strong>BACKEND</strong>
-                <span><Activity aria-hidden="true" /> CORE_ACTIVE</span>
+            {loading ? (
+              <Skeleton className="mx-auto aspect-square w-full max-w-[31rem] rounded-full" />
+            ) : technologies.length === 0 ? (
+              <div className="glass-card mx-auto flex aspect-square w-full max-w-[31rem] items-center justify-center rounded-2xl p-8 text-center text-sm text-muted-foreground">
+                Aún no hay tecnologías configuradas.
               </div>
-
-              {technologies.map((tech, index) => {
-                const angle = (index * 360) / technologies.length - 90;
-                const rad = (angle * Math.PI) / 180;
-                const Icon = tech.Icon;
-                const isActive = activeTechnology.name === tech.name;
-                return (
-                  <div key={tech.name} className="tech-hub__node-position" style={{ left: `${50 + Math.cos(rad) * 39}%`, top: `${50 + Math.sin(rad) * 39}%` }}>
-                    <button
-                      type="button"
-                      className="tech-hub__node"
-                      aria-label={tech.name}
-                      aria-pressed={isActive}
-                      onFocus={() => setActiveTechnology(tech)}
-                      onMouseEnter={() => setActiveTechnology(tech)}
-                      onClick={() => setActiveTechnology(tech)}
-                    >
-                      <Icon aria-hidden="true" />
-                      <span className="tech-hub__tooltip" role="tooltip">
-                        <strong>{tech.name}</strong>
-                        <span>{tech.description}</span>
-                      </span>
-                    </button>
-                  </div>
-                );
-              })}
-            </div>
+            ) : (
+              <OrbitalSystem
+                technologies={technologies}
+                core={core}
+                activeId={active?.id ?? null}
+                onActivate={(t) => setActiveId(t.id)}
+              />
+            )}
           </div>
 
           <div className="animate-in-view order-1 flex min-w-0 flex-col gap-5 lg:order-2 lg:col-span-7" style={{ transitionDelay: "0.2s" }}>
@@ -154,17 +102,25 @@ export default function About() {
               ))}
             </div>
 
-            <div className="about-bento-panel flex min-h-32 items-start gap-4 p-5" aria-live="polite">
-              <div className="flex size-11 shrink-0 items-center justify-center rounded-md border border-accent/30 bg-accent/10 text-accent">
-                <activeTechnology.Icon aria-hidden="true" size={21} />
-              </div>
-              <div className="min-w-0">
-                <div className="mb-1 flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                  <h3 className="font-mono text-base font-bold text-foreground">{activeTechnology.name}</h3>
+            {active && (
+              <div className="about-bento-panel flex min-h-32 items-start gap-4 p-5" aria-live="polite">
+                <div
+                  className="flex size-11 shrink-0 items-center justify-center rounded-md border border-accent/30 bg-accent/10 text-accent"
+                  style={active.color ? { borderColor: `${active.color}55`, color: active.color, background: `${active.color}14` } : undefined}
+                >
+                  <ActiveIcon aria-hidden="true" size={21} />
                 </div>
-                <p className="text-sm leading-relaxed text-muted-foreground">{activeTechnology.description}</p>
+                <div className="min-w-0">
+                  <div className="mb-1 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                    <h3 className="font-mono text-base font-bold text-foreground">{active.name}</h3>
+                    <span className="font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
+                      {active.category}
+                    </span>
+                  </div>
+                  <p className="text-sm leading-relaxed text-muted-foreground">{active.description}</p>
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </div>

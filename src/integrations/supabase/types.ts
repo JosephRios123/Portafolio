@@ -229,6 +229,72 @@ export type Database = {
         }
         Relationships: []
       }
+      profile_core: {
+        Row: {
+          created_at: string
+          icon_name: string
+          id: string
+          label: string
+          status_text: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          icon_name?: string
+          id?: string
+          label?: string
+          status_text?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          icon_name?: string
+          id?: string
+          label?: string
+          status_text?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      profile_technologies: {
+        Row: {
+          category: Database["public"]["Enums"]["tech_category"]
+          color: string | null
+          created_at: string
+          description: string
+          display_order: number
+          icon_name: string
+          id: string
+          is_active: boolean
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          category?: Database["public"]["Enums"]["tech_category"]
+          color?: string | null
+          created_at?: string
+          description?: string
+          display_order?: number
+          icon_name?: string
+          id?: string
+          is_active?: boolean
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          category?: Database["public"]["Enums"]["tech_category"]
+          color?: string | null
+          created_at?: string
+          description?: string
+          display_order?: number
+          icon_name?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       projects: {
         Row: {
           country: string | null
@@ -306,6 +372,16 @@ export type Database = {
       app_role: "admin" | "user"
       formation_status: "Completado" | "En progreso" | "Certificado"
       mindset_category: "Técnica" | "Humana" | "Estratégica"
+      tech_category:
+        | "Frontend"
+        | "Backend"
+        | "Database"
+        | "Cloud"
+        | "DevOps"
+        | "AI"
+        | "Tools"
+        | "Architecture"
+        | "Other"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -436,6 +512,17 @@ export const Constants = {
       app_role: ["admin", "user"],
       formation_status: ["Completado", "En progreso", "Certificado"],
       mindset_category: ["Técnica", "Humana", "Estratégica"],
+      tech_category: [
+        "Frontend",
+        "Backend",
+        "Database",
+        "Cloud",
+        "DevOps",
+        "AI",
+        "Tools",
+        "Architecture",
+        "Other",
+      ],
     },
   },
 } as const
