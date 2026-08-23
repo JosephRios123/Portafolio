@@ -103,7 +103,16 @@ const App = () => (
                     </Suspense>
                   }
                 />
+                <Route
+                  path="technologies"
+                  element={
+                    <Suspense fallback={<AdminFallback />}>
+                      <TechnologiesAdmin />
+                    </Suspense>
+                  }
+                />
               </Route>
+
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
