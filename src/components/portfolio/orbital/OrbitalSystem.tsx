@@ -72,7 +72,7 @@ export default function OrbitalSystem({ technologies, core, activeId, onActivate
       </div>
 
       <OrbitalCore
-        label={core?.label ?? "BACKEND"}
+        label={core?.label ?? "STACK"}
         statusText={core?.status_text ?? "CORE_ACTIVE"}
         iconName={core?.icon_name}
         scale={layout.coreScale}
