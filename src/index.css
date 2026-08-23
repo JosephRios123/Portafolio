@@ -275,6 +275,7 @@
   position: absolute;
   left: 50%;
   top: 50%;
+  z-index: 2;
   width: clamp(5.75rem, 26%, 8rem);
   aspect-ratio: 1;
   translate: -50% -50%;
@@ -324,7 +325,13 @@
 .tech-hub__rotor {
   position: absolute;
   inset: 0;
+  z-index: 1;
   animation: orbit-rotate 320s linear infinite;
+}
+
+.tech-hub__rotor:has(.tech-hub__node:hover),
+.tech-hub__rotor:has(.tech-hub__node:focus-visible) {
+  z-index: 3;
 }
 
 .tech-hub__node-spin {
@@ -341,6 +348,11 @@
   position: absolute;
   width: 0;
   height: 0;
+}
+
+.tech-hub__node-position:hover,
+.tech-hub__node-position:focus-within {
+  z-index: 40;
 }
 
 .tech-hub__node {
