@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { NavLink, Outlet, useNavigate, useLocation } from "react-router-dom";
-import { Briefcase, History, Brain, GraduationCap, LogOut, ExternalLink, ShieldCheck, Menu, LayoutDashboard, Mic2 } from "lucide-react";
+import { Briefcase, History, Brain, GraduationCap, LogOut, ExternalLink, ShieldCheck, Menu, LayoutDashboard, Mic2, Orbit } from "lucide-react";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { useIsMobile } from "@/hooks/use-mobile";
 
@@ -8,10 +8,12 @@ const items = [
   { to: "/admin",            label: "Dashboard",   icon: LayoutDashboard, exact: true },
   { to: "/admin/projects",   label: "Proyectos",   icon: Briefcase },
   { to: "/admin/experience", label: "Experiencia", icon: History },
+  { to: "/admin/technologies", label: "Tecnologías", icon: Orbit },
   { to: "/admin/mindset",    label: "Mentalidad",  icon: Brain },
   { to: "/admin/formations", label: "Formación",   icon: GraduationCap },
   { to: "/admin/events",     label: "Eventos",     icon: Mic2 },
 ];
+
 
 function titleFromPath(p: string) {
   return items.find((i) => (i.exact ? p === i.to : p.startsWith(i.to)))?.label ?? "Admin";
