@@ -93,3 +93,26 @@ export function flattenZodErrors<T>(result: z.SafeParseReturnType<T, T>): ZodRes
   }
   return out;
 }
+
+export const technologySchema = z.object({
+  name: z.string().trim().min(1, "El nombre es obligatorio").max(40, "Máximo 40 caracteres"),
+  category: z.enum([
+    "Frontend", "Backend", "Database", "Cloud", "DevOps", "AI", "Tools", "Architecture", "Other",
+  ]),
+  icon_name: z.string().trim().min(1, "Selecciona un icono"),
+  color: z
+    .string()
+    .trim()
+    .max(40, "Color demasiado largo")
+    .nullable()
+    .optional(),
+  description: z.string().trim().max(160, "Máximo 160 caracteres"),
+  display_order: z.number().int().min(0).max(999),
+  is_active: z.boolean(),
+});
+
+export const coreConfigSchema = z.object({
+  label: z.string().trim().min(1, "Obligatorio").max(20, "Máximo 20 caracteres"),
+  status_text: z.string().trim().min(1, "Obligatorio").max(24, "Máximo 24 caracteres"),
+  icon_name: z.string().trim().min(1, "Selecciona un icono"),
+});

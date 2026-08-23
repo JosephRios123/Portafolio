@@ -18,6 +18,8 @@ const ExperienceAdmin = lazy(() => import("./pages/admin/ExperienceAdmin"));
 const MindsetAdmin = lazy(() => import("./pages/admin/MindsetAdmin"));
 const FormationsAdmin = lazy(() => import("./pages/admin/FormationsAdmin"));
 const EventsAdmin = lazy(() => import("./pages/admin/EventsAdmin"));
+const TechnologiesAdmin = lazy(() => import("./pages/admin/TechnologiesAdmin"));
+
 
 const queryClient = new QueryClient();
 
@@ -101,7 +103,16 @@ const App = () => (
                     </Suspense>
                   }
                 />
+                <Route
+                  path="technologies"
+                  element={
+                    <Suspense fallback={<AdminFallback />}>
+                      <TechnologiesAdmin />
+                    </Suspense>
+                  }
+                />
               </Route>
+
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>

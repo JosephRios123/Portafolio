@@ -69,7 +69,7 @@ export default function About() {
               <OrbitalSystem
                 technologies={technologies}
                 core={core}
-                activeId={active?.id ?? null}
+                activeId={activeId}
                 onActivate={(t) => setActiveId(t.id)}
               />
             )}
